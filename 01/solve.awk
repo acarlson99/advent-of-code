@@ -1,5 +1,3 @@
-#!/usr/bin/awk
-
 func f(n) {
 	return int(n / 3) - 2
 }
@@ -7,15 +5,15 @@ func f(n) {
 func findReal(n) {
 	extra = f(n)
 	if (extra <= 0) {
-		return (n)
+		return (0)
 	} else {
-		return (n + findReal(extra))
+		return (extra + findReal(extra))
 	}
 }
 
 {
 	c += f($1)
-	c2 += findReal(f($1))
+	c2 += findReal($1)
 }
 
 END {
