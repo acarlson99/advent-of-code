@@ -2,6 +2,7 @@
 
 import fileinput
 
+# return list of (x,y) pairs
 def make_tuples(line):
     a = []
     x = 0
@@ -25,19 +26,31 @@ def make_tuples(line):
                 a.append((x,y))
     return a
 
+# array of arrays of (x,y) pairs
 arrs = []
 for line in fileinput.input():
     arrs.append(make_tuples(line))
 
-seen = set()
+# filter for intersections
+seen = {}
 repeated = set()
+arrnum = 0
 for l in arrs:
-    for i in set(l):
+    for idx,i in enumerate(l):
         if i in seen:
-            repeated.add(i)
+            if seen[i][1] != arrnum:
+                repeated.add((i, (idx, seen[i][0] + 1)))
         else:
-            seen.add(i)
+            seen[i] = (idx + 1, arrnum)
+    arrnum += 1
 
-rep = map(lambda x: abs(x[0]) + abs(x[1]), repeated)
+# find best intersection
+d1 = 1000000000000
+d2 = 1000000000000
+for pos, dist in repeated:
+    print(pos,dist)
+    d1 = min(abs(pos[0]) + abs(pos[1]), d1)
+    d2 = min(dist[0] + dist[1], d2)
 
-print("Part one:", min(rep))
+print("Part one:", d1)
+print("Part two:", d2)
