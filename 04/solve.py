@@ -17,12 +17,17 @@ def check(s):
         last = n
     return double >= 1
 
+r = re.compile('(.)\\1\\1+')
+def check2(s):
+    return check(s) and check(r.sub('', s))
+
 num = 0
+num2 = 0
 for n in range(range_min, range_max):
     if check(str(n)):
         num += 1
+    if check2(str(n)):
+        num2 += 1
 
-print(num)
-
-print(check("1123"))
-print(check("11123"))
+print("Part one:", num)
+print("Part two:", num2)
