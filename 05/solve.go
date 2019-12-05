@@ -23,7 +23,7 @@ func getArg(arr []int, mode, ii int) int {
 	panic("Bad mode")
 }
 
-func getModes(op int) ([]int, int) {
+func parseOp(op int) ([]int, int) {
 	modes := []int{}
 	modes = append(modes, (op/100)%10)
 	modes = append(modes, (op/1000)%10)
@@ -42,6 +42,8 @@ var ops []Opcode = []Opcode{
 	Opcode{6, 2, "Jump instruction ptr to second param if first param zero"},
 	Opcode{7, 3, "Jump instruction ptr to third param if first param less than second param"},
 	Opcode{8, 3, "Jump instruction ptr to third param if first param equals second param"},
+	// ...
+	Opcode{99, 0, "Exit"},
 }
 
 func exec_prog(arr []int) int {
@@ -53,8 +55,7 @@ func exec_prog(arr []int) int {
 
 		ptrmod := false
 
-		modes, op := getModes(arr[ii])
-		// fmt.Println(modes, op)
+		modes, op := parseOp(arr[ii])
 		args := []int{0, 0, 0, 0}
 		for jj := 0; jj < ops[op].args; jj++ {
 			args[jj] = getArg(arr, modes[jj], ii+jj+1)
@@ -97,8 +98,7 @@ func exec_prog(arr []int) int {
 		case 99:
 			goto end
 		default:
-			fmt.Println(arr[ii])
-			fmt.Println("YIKES")
+			fmt.Println("YIKES unexpected opcode", arr[ii])
 			os.Exit(1)
 		}
 		if !ptrmod {
@@ -109,11 +109,13 @@ end:
 	return arr[0]
 }
 
+// (cat input.txt; echo '1') | ./solve
+// (cat input.txt; echo '5') | ./solve
+
 func main() {
 	var a []int
 
 	reader := bufio.NewReader(os.Stdin)
-	// reader := strings.NewReader("1,1,1,0,99\n")
 	text, _ := reader.ReadString('\n')
 
 	ints := strings.Split(text, ",")
@@ -131,5 +133,5 @@ func main() {
 		a = append(a, n)
 	}
 
-	fmt.Println("Part one:", exec_prog(a))
+	exec_prog(a)
 }
