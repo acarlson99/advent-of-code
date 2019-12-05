@@ -17,6 +17,6 @@ func findReal(n) {
 }
 
 END {
-	print c
-	print c2
+	print "Part one:", c
+	print "Part two:", c2
 }

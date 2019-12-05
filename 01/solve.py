@@ -15,5 +15,5 @@ for line in fileinput.input():
     totalA += n
     totalB += findReal(n)
 
-print(totalA)
-print(totalB)
+print("Part one:", totalA)
+print("Part two:", totalB)

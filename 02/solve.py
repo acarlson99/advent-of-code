@@ -1,4 +1,4 @@
-# 509871
+#!/usr/bin/env python3
 
 import fileinput
 
@@ -27,11 +27,11 @@ for line in fileinput.input():
 
     arr = [n for n in copy]
     eval_program(arr, 12, 2)
-    print(arr[0])
+    print("Part one:", arr[0])
 
     for noun in range(100):
         for verb in range(100):
             arr = [n for n in copy]
             eval_program(arr, noun, verb)
             if arr[0] == 19690720:
-                print("N: ", noun, "V: ", verb)
+                print("Part two:", 100 * noun + verb)

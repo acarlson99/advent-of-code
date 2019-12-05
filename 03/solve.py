@@ -48,7 +48,6 @@ for l in arrs:
 d1 = 1000000000000
 d2 = 1000000000000
 for pos, dist in repeated:
-    print(pos,dist)
     d1 = min(abs(pos[0]) + abs(pos[1]), d1)
     d2 = min(dist[0] + dist[1], d2)
 
