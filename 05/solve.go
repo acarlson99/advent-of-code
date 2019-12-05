@@ -14,14 +14,6 @@ type Opcode struct {
 	desc string
 }
 
-var ops []Opcode = []Opcode{
-	Opcode{0, 0, "NULL"},
-	Opcode{1, 3, "Add first two params and store in third"},
-	Opcode{2, 3, "Mult first two params and store in third"},
-	Opcode{3, 1, "Read from stdin and store int result in arg 1"},
-	Opcode{4, 1, "Print var at arg 1"},
-}
-
 func getArg(arr []int, mode, ii int) int {
 	if mode == 0 {
 		return arr[arr[ii]]
@@ -40,12 +32,26 @@ func getModes(op int) ([]int, int) {
 	return modes, opcode
 }
 
+var ops []Opcode = []Opcode{
+	Opcode{0, 0, "NULL"},
+	Opcode{1, 3, "Add first two params and store in third"},
+	Opcode{2, 3, "Mult first two params and store in third"},
+	Opcode{3, 1, "Read from stdin and store int result in arg 1"},
+	Opcode{4, 1, "Print var at arg 1"},
+	Opcode{5, 2, "Jump instruction ptr to second param if first param non-zero"},
+	Opcode{6, 2, "Jump instruction ptr to second param if first param zero"},
+	Opcode{7, 3, "Jump instruction ptr to third param if first param less than second param"},
+	Opcode{8, 3, "Jump instruction ptr to third param if first param equals second param"},
+}
+
 func exec_prog(arr []int) int {
 	ii := 0
 	for {
 		if arr[ii] == 99 {
 			goto end
 		}
+
+		ptrmod := false
 
 		modes, op := getModes(arr[ii])
 		// fmt.Println(modes, op)
@@ -66,6 +72,28 @@ func exec_prog(arr []int) int {
 			arr[arr[ii+1]], _ = strconv.Atoi(text)
 		case 4:
 			fmt.Println(args[0])
+		case 5:
+			if args[0] != 0 {
+				ii = args[1]
+				ptrmod = true
+			}
+		case 6:
+			if args[0] == 0 {
+				ii = args[1]
+				ptrmod = true
+			}
+		case 7:
+			if args[0] < args[1] {
+				arr[arr[ii+3]] = 1
+			} else {
+				arr[arr[ii+3]] = 0
+			}
+		case 8:
+			if args[0] == args[1] {
+				arr[arr[ii+3]] = 1
+			} else {
+				arr[arr[ii+3]] = 0
+			}
 		case 99:
 			goto end
 		default:
@@ -73,7 +101,9 @@ func exec_prog(arr []int) int {
 			fmt.Println("YIKES")
 			os.Exit(1)
 		}
-		ii += ops[op].args + 1
+		if !ptrmod {
+			ii += ops[op].args + 1
+		}
 	}
 end:
 	return arr[0]
