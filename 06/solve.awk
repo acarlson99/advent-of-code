@@ -15,7 +15,10 @@ func eval_elem(str) {
 	if (str == "COM") {
 		return (0)
 	}
-	return eval_elem(parents[str]) + 1
+	# memoize results to optimize unnecessarily
+	if (!memo[str])
+		memo[str] = eval_elem(parents[str]) + 1
+	return memo[str]
 }
 
 # return 1 if found santa, else 0
@@ -49,7 +52,7 @@ func find_san() {
 
 	# BFS
 	ii = 0
-	while (1 == 1) {
+	while (ii < elems) {
 		if (tosearch[ii] == "SAN")
 			break
 		if (expand(tosearch[ii]))
@@ -64,6 +67,7 @@ END {
 		total += eval_elem(elem)
 	}
 	print "Part one:", total
+
 	find_san()
 	# -2 because counting length from YOU to SAN rather than len from parent nodes
 	print "Part two:", chain["SAN"] - 2
