@@ -65,5 +65,6 @@ END {
 	}
 	print "Part one:", total
 	find_san()
+	# -2 because counting length from YOU to SAN rather than len from parent nodes
 	print "Part two:", chain["SAN"] - 2
 }
