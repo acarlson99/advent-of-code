@@ -46,38 +46,11 @@ var ops []Opcode = []Opcode{
 	Opcode{99, 0, "Exit"},
 }
 
-func permutations(arr []int) [][]int {
-	var helper func([]int, int)
-	res := [][]int{}
-
-	helper = func(arr []int, n int) {
-		if n == 1 {
-			tmp := make([]int, len(arr))
-			copy(tmp, arr)
-			res = append(res, tmp)
-		} else {
-			for i := 0; i < n; i++ {
-				helper(arr, n-1)
-				if n%2 == 1 {
-					tmp := arr[i]
-					arr[i] = arr[n-1]
-					arr[n-1] = tmp
-				} else {
-					tmp := arr[0]
-					arr[0] = arr[n-1]
-					arr[n-1] = tmp
-				}
-			}
-		}
-	}
-	helper(arr, len(arr))
-	return res
-}
-
-// return output, halted
-func exec_prog(arr []int, inputs []int) (int, bool) {
+// write to input chan, read from output chan, closes output on exit
+// modifies arr
+// I/O is blocking
+func exec_with_chan(arr []int, input, output chan int) {
 	ii := 0
-	inputnum := 0
 	for {
 		if arr[ii]%100 == 99 {
 			goto end
@@ -97,19 +70,9 @@ func exec_prog(arr []int, inputs []int) (int, bool) {
 		case 2:
 			arr[arr[ii+3]] = args[0] * args[1]
 		case 3:
-			// reader := bufio.NewReader(os.Stdin)
-			// text, _ := reader.ReadString('\n')
-			// if len(text) < 1 {
-			// 	fmt.Println("Correcting text to '0\\n'")
-			// 	text = "0\n"
-			// }
-			// text = text[0 : len(text)-1]
-			// arr[arr[ii+1]], _ = strconv.Atoi(text)
-			arr[arr[ii+1]] = inputs[inputnum]
-			inputnum++
+			arr[arr[ii+1]] = <-input
 		case 4:
-			return args[0], false
-			fmt.Println("OUTPUT:", args[0])
+			output <- args[0]
 		case 5:
 			if args[0] != 0 {
 				ii = args[1]
@@ -144,134 +107,51 @@ func exec_prog(arr []int, inputs []int) (int, bool) {
 	}
 
 end:
-	fmt.Println("AAAAAAAAAAAAAAAAAAA")
-	return 0, true
-}
-
-// output, halt, ii
-func get_next_output(arr []int, input, ii int) (int, bool, int) {
-	for {
-		if arr[ii]%100 == 99 {
-			goto end
-		}
-
-		ptrmod := false
-
-		modes, op := parseOp(arr[ii])
-		args := []int{0, 0, 0, 0}
-		for jj := 0; jj < ops[op].args; jj++ {
-			args[jj] = getArg(arr, modes[jj], ii+jj+1)
-		}
-
-		switch op {
-		case 1:
-			arr[arr[ii+3]] = args[0] + args[1]
-		case 2:
-			arr[arr[ii+3]] = args[0] * args[1]
-		case 3:
-			// reader := bufio.NewReader(os.Stdin)
-			// text, _ := reader.ReadString('\n')
-			// if len(text) < 1 {
-			// 	fmt.Println("Correcting text to '0\\n'")
-			// 	text = "0\n"
-			// }
-			// text = text[0 : len(text)-1]
-			// arr[arr[ii+1]], _ = strconv.Atoi(text)
-			arr[arr[ii+1]] = input
-		case 4:
-			return args[0], false, ii + ops[op].args + 1
-			// fmt.Println("OUTPUT:", args[0])
-		case 5:
-			if args[0] != 0 {
-				ii = args[1]
-				ptrmod = true
-			}
-		case 6:
-			if args[0] == 0 {
-				ii = args[1]
-				ptrmod = true
-			}
-		case 7:
-			if args[0] < args[1] {
-				arr[arr[ii+3]] = 1
-			} else {
-				arr[arr[ii+3]] = 0
-			}
-		case 8:
-			if args[0] == args[1] {
-				arr[arr[ii+3]] = 1
-			} else {
-				arr[arr[ii+3]] = 0
-			}
-		case 99:
-			goto end
-		default:
-			goto end
-			fmt.Println("YIKES unexpected opcode", arr[ii])
-			os.Exit(1)
-		}
-		if !ptrmod {
-			ii += ops[op].args + 1
-		}
-	}
-
-end:
-	return 0, true, ii
-}
-
-func exec_copy(base []int, inputs []int) (int, bool) {
-	var a []int
-	for _, num := range base {
-		a = append(a, num)
-	}
-
-	return exec_prog(a, inputs)
+	close(output)
 }
 
 func exec_perm(base []int, perm []int) int {
 	sig := 0
 	for _, num := range perm {
-		sig, _ = exec_copy(base, []int{num, sig})
+		a := copy_arr(base)
+		input := make(chan int)
+		output := make(chan int)
+
+		go exec_with_chan(a, input, output)
+		input <- num
+		input <- sig
+
+		sig = (<-output)
 	}
 	return sig
 }
 
 func exec_perm2(base []int, perm []int) int {
 	var tapes [][]int
-	var iis [5]int
+	ins := [](chan int){make(chan int, 10), make(chan int, 10), make(chan int, 10), make(chan int, 10), make(chan int, 10)}
+	outs := [](chan int){make(chan int, 10), make(chan int, 10), make(chan int, 10), make(chan int, 10), make(chan int, 10)}
 
-	for _ = range perm {
-		var a []int
-		for _, num := range base {
-			a = append(a, num)
-		}
-		tapes = append(tapes, a)
+	for ii, num := range perm {
+		tapes = append(tapes, copy_arr(base))
+		go exec_with_chan(tapes[ii], ins[ii], outs[ii])
+		ins[ii] <- num
 	}
 
-	outs := [][]int{{0}, {0}, {0}, {0}, {0}}
-
+	sig_input := []int{0, 0, 0, 0, 0}
+	closed := false
 	sig := 0
-	halted := false
-	for ii := range perm {
-		outs[ii][0], _, iis[ii] = get_next_output(tapes[ii], perm[ii], iis[ii])
-	}
-	sig = 0
-	for {
-		// for _, num := range perm {
-		// 	sig, halted = exec_copy(base, []int{num, sig})
-		// 	fmt.Println(sig, halted, ii)
-		// 	if halted {
-		// 		goto end
-		// 	}
-		// }
-		for ii := range perm {
-			sig, halted, iis[ii] = get_next_output(tapes[ii], sig, iis[ii])
-		}
-		if halted {
-			break
-		}
-	}
 
+	for !closed {
+		sig = sig_input[0]
+		for ii := range perm {
+			lopen := true
+			ins[ii] <- sig_input[ii]
+			sig_input[(ii+1)%5], lopen = <-outs[ii]
+			if !lopen {
+				closed = true
+			}
+		}
+	}
 	return sig
 }
 
@@ -297,24 +177,23 @@ func main() {
 		a = append(a, n)
 	}
 
-	// // part one
-	// answer := 0
-	// for _, perm := range permutations([]int{4, 3, 2, 1, 0}) {
-	// 	ret := exec_perm(a, perm)
-	// 	if ret > answer {
-	// 		answer = ret
-	// 	}
-	// }
-	// fmt.Println(answer)
+	// part one
+	answer := 0
+	for _, perm := range permutations([]int{4, 3, 2, 1, 0}) {
+		ret := exec_perm(a, perm)
+		if ret > answer {
+			answer = ret
+		}
+	}
+	fmt.Println("Part one:", answer)
 
 	// part two
-	fmt.Println(exec_perm2(a, []int{9, 8, 7, 6, 5}))
-	// answer2 := 0
-	// for _, perm := range permutations([]int{9, 8, 7, 6, 5}) {
-	// 	ret := exec_perm2(a, perm)
-	// 	if ret > answer2 {
-	// 		answer2 = ret
-	// 	}
-	// }
-	// fmt.Println(answer2)
+	answer2 := 0
+	for _, perm := range permutations([]int{9, 8, 7, 6, 5}) {
+		ret := exec_perm2(a, perm)
+		if ret > answer2 {
+			answer2 = ret
+		}
+	}
+	fmt.Println("Part two:", answer2)
 }
