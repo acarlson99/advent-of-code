@@ -14,24 +14,6 @@ type Opcode struct {
 	desc string
 }
 
-func getArg(arr []int, mode, ii int) int {
-	if mode == 0 {
-		return arr[arr[ii]]
-	} else if mode == 1 {
-		return arr[ii]
-	}
-	panic("Bad mode")
-}
-
-func parseOp(op int) ([]int, int) {
-	modes := []int{}
-	modes = append(modes, (op/100)%10)
-	modes = append(modes, (op/1000)%10)
-	modes = append(modes, (op/10000)%10)
-	opcode := op % 100
-	return modes, opcode
-}
-
 var ops []Opcode = []Opcode{
 	Opcode{0, 0, "NULL"},
 	Opcode{1, 3, "Add first two params and store in third"},
@@ -49,8 +31,9 @@ var ops []Opcode = []Opcode{
 // write to input chan, read from output chan, closes output on exit
 // modifies arr
 // I/O is blocking
-func exec_with_chan(arr []int, input, output chan int) {
+func exec_prog(arr []int, input, output myReadWriter) {
 	ii := 0
+	inputOpen := true
 	for {
 		if arr[ii]%100 == 99 {
 			goto end
@@ -70,9 +53,14 @@ func exec_with_chan(arr []int, input, output chan int) {
 		case 2:
 			arr[arr[ii+3]] = args[0] * args[1]
 		case 3:
-			arr[arr[ii+1]] = <-input
+			if inputOpen {
+				arr[arr[ii+1]], inputOpen = input.ReadInt()
+			} else {
+				fmt.Println("Input closed")
+				arr[arr[ii+1]] = 0
+			}
 		case 4:
-			output <- args[0]
+			output.WriteInt(args[0])
 		case 5:
 			if args[0] != 0 {
 				ii = args[1]
@@ -107,17 +95,18 @@ func exec_with_chan(arr []int, input, output chan int) {
 	}
 
 end:
-	close(output)
+	output.Close()
 }
 
 func exec_perm(base []int, perm []int) int {
 	sig := 0
 	for _, num := range perm {
 		a := copy_arr(base)
-		input := make(chan int)
-		output := make(chan int)
+		var input, output myChan
+		input = make(chan int)
+		output = make(chan int)
 
-		go exec_with_chan(a, input, output)
+		go exec_prog(a, input, output)
 		input <- num
 		input <- sig
 
@@ -128,12 +117,12 @@ func exec_perm(base []int, perm []int) int {
 
 func exec_perm2(base []int, perm []int) int {
 	var tapes [][]int
-	ins := [](chan int){make(chan int, 10), make(chan int, 10), make(chan int, 10), make(chan int, 10), make(chan int, 10)}
-	outs := [](chan int){make(chan int, 10), make(chan int, 10), make(chan int, 10), make(chan int, 10), make(chan int, 10)}
+	ins := [](myChan){make(chan int, 10), make(chan int, 10), make(chan int, 10), make(chan int, 10), make(chan int, 10)}
+	outs := [](myChan){make(chan int), make(chan int), make(chan int), make(chan int), make(chan int)}
 
 	for ii, num := range perm {
 		tapes = append(tapes, copy_arr(base))
-		go exec_with_chan(tapes[ii], ins[ii], outs[ii])
+		go exec_prog(tapes[ii], ins[ii], outs[ii])
 		ins[ii] <- num
 	}
 

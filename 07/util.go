@@ -36,3 +36,21 @@ func copy_arr(base []int) []int {
 	}
 	return a
 }
+
+func getArg(arr []int, mode, ii int) int {
+	if mode == 0 {
+		return arr[arr[ii]]
+	} else if mode == 1 {
+		return arr[ii]
+	}
+	panic("Bad mode")
+}
+
+func parseOp(op int) ([]int, int) {
+	modes := []int{}
+	modes = append(modes, (op/100)%10)
+	modes = append(modes, (op/1000)%10)
+	modes = append(modes, (op/10000)%10)
+	opcode := op % 100
+	return modes, opcode
+}
