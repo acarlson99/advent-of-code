@@ -145,11 +145,81 @@ func exec_prog(arr []int, inputs []int) (int, bool) {
 
 end:
 	fmt.Println("AAAAAAAAAAAAAAAAAAA")
-	return arr[0], true
+	return 0, true
+}
+
+// output, halt, ii
+func get_next_output(arr []int, input, ii int) (int, bool, int) {
+	for {
+		if arr[ii]%100 == 99 {
+			goto end
+		}
+
+		ptrmod := false
+
+		modes, op := parseOp(arr[ii])
+		args := []int{0, 0, 0, 0}
+		for jj := 0; jj < ops[op].args; jj++ {
+			args[jj] = getArg(arr, modes[jj], ii+jj+1)
+		}
+
+		switch op {
+		case 1:
+			arr[arr[ii+3]] = args[0] + args[1]
+		case 2:
+			arr[arr[ii+3]] = args[0] * args[1]
+		case 3:
+			// reader := bufio.NewReader(os.Stdin)
+			// text, _ := reader.ReadString('\n')
+			// if len(text) < 1 {
+			// 	fmt.Println("Correcting text to '0\\n'")
+			// 	text = "0\n"
+			// }
+			// text = text[0 : len(text)-1]
+			// arr[arr[ii+1]], _ = strconv.Atoi(text)
+			arr[arr[ii+1]] = input
+		case 4:
+			return args[0], false, ii + ops[op].args + 1
+			// fmt.Println("OUTPUT:", args[0])
+		case 5:
+			if args[0] != 0 {
+				ii = args[1]
+				ptrmod = true
+			}
+		case 6:
+			if args[0] == 0 {
+				ii = args[1]
+				ptrmod = true
+			}
+		case 7:
+			if args[0] < args[1] {
+				arr[arr[ii+3]] = 1
+			} else {
+				arr[arr[ii+3]] = 0
+			}
+		case 8:
+			if args[0] == args[1] {
+				arr[arr[ii+3]] = 1
+			} else {
+				arr[arr[ii+3]] = 0
+			}
+		case 99:
+			goto end
+		default:
+			goto end
+			fmt.Println("YIKES unexpected opcode", arr[ii])
+			os.Exit(1)
+		}
+		if !ptrmod {
+			ii += ops[op].args + 1
+		}
+	}
+
+end:
+	return 0, true, ii
 }
 
 func exec_copy(base []int, inputs []int) (int, bool) {
-	fmt.Println(inputs)
 	var a []int
 	for _, num := range base {
 		a = append(a, num)
@@ -167,22 +237,42 @@ func exec_perm(base []int, perm []int) int {
 }
 
 func exec_perm2(base []int, perm []int) int {
-	sig := 0
-	halted := false
-	esig := 0
-	for ii := 0; ii < 10; ii++ {
-		for _, num := range perm {
-			sig, halted = exec_copy(base, []int{num, sig})
-			fmt.Println(sig, halted, ii)
-			if halted {
-				goto end
-			}
+	var tapes [][]int
+	var iis [5]int
+
+	for _ = range perm {
+		var a []int
+		for _, num := range base {
+			a = append(a, num)
 		}
-		esig = sig
+		tapes = append(tapes, a)
 	}
 
-end:
-	return esig
+	outs := [][]int{{0}, {0}, {0}, {0}, {0}}
+
+	sig := 0
+	halted := false
+	for ii := range perm {
+		outs[ii][0], _, iis[ii] = get_next_output(tapes[ii], perm[ii], iis[ii])
+	}
+	sig = 0
+	for {
+		// for _, num := range perm {
+		// 	sig, halted = exec_copy(base, []int{num, sig})
+		// 	fmt.Println(sig, halted, ii)
+		// 	if halted {
+		// 		goto end
+		// 	}
+		// }
+		for ii := range perm {
+			sig, halted, iis[ii] = get_next_output(tapes[ii], sig, iis[ii])
+		}
+		if halted {
+			break
+		}
+	}
+
+	return sig
 }
 
 func main() {
