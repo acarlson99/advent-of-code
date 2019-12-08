@@ -35,7 +35,8 @@ for i in range(len(layers[0])):
                 # █
                 arr.append(u"\u2588")
             else:
-                arr.append(' ')
+                # ░
+                arr.append(u"\u2591")
             break
 
 print("Part two:")
