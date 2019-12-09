@@ -46,7 +46,7 @@ var ops []Opcode = []Opcode{
 	Opcode{99, 0, "Exit"},
 }
 
-func exec_prog(arr []int) int {
+func exec_prog(arr []int, input int) int {
 	ii := 0
 	for {
 		if arr[ii] == 99 {
@@ -67,10 +67,7 @@ func exec_prog(arr []int) int {
 		case 2:
 			arr[arr[ii+3]] = args[0] * args[1]
 		case 3:
-			reader := bufio.NewReader(os.Stdin)
-			text, _ := reader.ReadString('\n')
-			text = text[0 : len(text)-1]
-			arr[arr[ii+1]], _ = strconv.Atoi(text)
+			arr[arr[ii+1]] = input
 		case 4:
 			fmt.Println(args[0])
 		case 5:
@@ -109,8 +106,13 @@ end:
 	return arr[0]
 }
 
-// (cat input.txt; echo '1') | ./solve
-// (cat input.txt; echo '5') | ./solve
+func copy_arr(base []int) []int {
+	var a []int
+	for _, num := range base {
+		a = append(a, num)
+	}
+	return a
+}
 
 func main() {
 	var a []int
@@ -133,5 +135,6 @@ func main() {
 		a = append(a, n)
 	}
 
-	exec_prog(a)
+	exec_prog(copy_arr(a), 1)
+	exec_prog(copy_arr(a), 5)
 }
