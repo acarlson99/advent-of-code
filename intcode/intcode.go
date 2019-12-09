@@ -48,8 +48,6 @@ func read_program(reader io.Reader) []int {
 		ints = append(ints, 0)
 	}
 
-	fmt.Println(ints[0:30])
-
 	return ints
 }
 

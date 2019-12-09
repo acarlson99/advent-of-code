@@ -7,27 +7,28 @@ import (
 type Opcode struct {
 	code int
 	args int
+	name string
 	desc string
 }
 
 var ops []Opcode = []Opcode{
-	Opcode{0, 0, "NULL"},
-	Opcode{1, 3, "Add first two params and store in third"},
-	Opcode{2, 3, "Mult first two params and store in third"},
-	Opcode{3, 1, "Read from stdin and store int result in arg 1"},
-	Opcode{4, 1, "Print var at arg 1"},
-	Opcode{5, 2, "Jump instruction ptr to second param if first param non-zero"},
-	Opcode{6, 2, "Jump instruction ptr to second param if first param zero"},
-	Opcode{7, 3, "Store 1 in third param if first param less than second param, else 0"},
-	Opcode{8, 3, "Store 1 in third param if first param equals second param, else 0"},
-	Opcode{9, 1, "Change relative base to value of param"},
+	Opcode{0, 0, "NULL", "NULL"},
+	Opcode{1, 3, "ADD", "Add first two params and store in third"},
+	Opcode{2, 3, "MULT", "Mult first two params and store in third"},
+	Opcode{3, 1, "READ", "Read from stdin and store int result in arg 1"},
+	Opcode{4, 1, "WRITE", "Print var at arg 1"},
+	Opcode{5, 2, "JNZ", "Jump instruction ptr to second param if first param non-zero"},
+	Opcode{6, 2, "JZ", "Jump instruction ptr to second param if first param zero"},
+	Opcode{7, 3, "LT", "Store 1 in third param if first param less than second param, else 0"},
+	Opcode{8, 3, "EQ", "Store 1 in third param if first param equals second param, else 0"},
+	Opcode{9, 1, "ADDRB", "Add param to relative base"},
 	// ...
-	Opcode{99, 0, "Exit"},
+	Opcode{99, 0, "EXIT", "Exit"},
 }
 
 // write to input chan, read from output chan, closes output on exit
 // modifies arr
-// I/O is blocking
+// I/O may be blocking
 func exec_prog(arr []int, input myReader, output myWriter) {
 	ii := 0
 	inputOpen := true
