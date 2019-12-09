@@ -32,7 +32,7 @@ var ops []Opcode = []Opcode{
 // write to input chan, read from output chan, closes output on exit
 // modifies arr
 // I/O is blocking
-func exec_prog(arr []int, input, output myReadWriter) {
+func exec_prog(arr []int, input myReader, output myWriter) {
 	ii := 0
 	inputOpen := true
 	rel := 0
@@ -131,5 +131,8 @@ func main() {
 	}
 
 	// part one
-	exec_prog(a, myStdin{}, myStdin{})
+	exec_prog(copy_arr(a), myInt(1), myStdin{})
+
+	// part two
+	exec_prog(copy_arr(a), myInt(2), myStdin{})
 }
