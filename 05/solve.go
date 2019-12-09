@@ -135,6 +135,8 @@ func main() {
 		a = append(a, n)
 	}
 
+	fmt.Println("Part one:")
 	exec_prog(copy_arr(a), 1)
+	fmt.Println("Part two:")
 	exec_prog(copy_arr(a), 5)
 }
