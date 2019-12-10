@@ -2,18 +2,6 @@
 
 import fileinput
 
-# file 20x20
-yy = 0
-# list of x,y pairs
-asteroids = []
-lines = []
-for line in fileinput.input():
-    lines.append(line)
-    for xx in range(len(line)):
-        if line[xx] == '#':
-            asteroids.append((xx,yy))
-    yy += 1
-
 def simplify(x,y):
     a,b = x,y
     while b:
@@ -41,6 +29,19 @@ def get_view(x1,y1):
             slopes[idx].add(slope)
     return slopes
 
+# read input
+yy = 0
+# list of x,y pairs
+asteroids = []
+lines = []
+for line in fileinput.input():
+    lines.append(line)
+    for xx in range(len(line)):
+        if line[xx] == '#':
+            asteroids.append((xx,yy))
+    yy += 1
+
+# part one
 best = 0
 bestCoords = (-1,-1)
 bestSlopes = []
@@ -54,6 +55,7 @@ for x1, y1 in asteroids:
 
 print("Part one:", best)
 
+# part two
 vapIdx = 1
 for lst in bestSlopes:
     if vapIdx + len(lst) < 200:
