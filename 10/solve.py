@@ -20,12 +20,14 @@ def simplify(x,y):
         a,b = b, a % b
     return (x/a,y/a)
 
+def get_view(x1,y1):
+    pass
+
 bestDict = []
 best = 0
 bestCoords = (-1,-1)
 bestTotals = []
 for x1, y1 in asteroids:
-    # y2-y1 / x2-1
     localDict = {}
     totals = [set(),set(),set(),set()]
     for x2,y2 in asteroids:
@@ -56,15 +58,28 @@ for x1, y1 in asteroids:
 
 print(best, bestCoords)
 
-# vapIdx = 0
-# for lst in bestTotals:
-#     if vapIdx + len(lst) < 200:
-#         vapIdx += len(lst)
-#         continue
-#     slopes = [(y/x, (x,y)) for x,y in lst]
-#     slopes.sort()
-#     print(200-vapIdx)
-#     print(slopes[200-vapIdx - 1])
+vapIdx = 0
+print(len(bestTotals[0]))
+print(len(bestTotals[1]))
+print(len(bestTotals[2]))
+print(len(bestTotals[3]))
+for lst in bestTotals:
+    if vapIdx + len(lst) < 10:
+        print("SKIP")
+        vapIdx += len(lst)
+        continue
+
+print("LEN",len(lst))
+slopes = [((bestCoords[1]-y/bestCoords[0]-x), (x,y)) for x,y in lst]
+print(len(slopes))
+slopes.sort()
+print(len(slopes))
+print(10-vapIdx)
+print("0", slopes[0])
+print(len(slopes)-1, slopes[len(slopes)-1])
+print(10 - vapIdx - len(slopes))
+print(slopes[10-vapIdx])
 
 # 302 < ans < 705
 # 314
+# 512
