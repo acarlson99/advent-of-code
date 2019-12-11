@@ -6,50 +6,8 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 	"strings"
 )
-
-// return entire file as string
-func read_all(reader io.Reader) string {
-	s := ""
-	buf := make([]byte, 2048)
-	for n, _ := reader.Read(buf); n > 0; n, _ = reader.Read(buf) {
-		s += string(buf[0:n])
-	}
-	return s
-}
-
-// read from reader, return arr of nums
-func read_program(reader io.Reader) []int {
-	ints := []int{}
-	text := read_all(reader)
-
-	for _, line := range strings.Split(text, "\n") {
-		ss := strings.Split(line, ",")
-
-		intlen := len(ss) - 1
-		lastnum := ss[intlen]
-		if len(lastnum) > 0 && lastnum[len(lastnum)-1] == '\n' {
-			lastnum = lastnum[0 : len(lastnum)-1]
-			ss[intlen] = lastnum
-		}
-
-		for _, num := range ss {
-			n, err := strconv.Atoi(num)
-			if err != nil {
-				break
-			}
-			ints = append(ints, n)
-		}
-	}
-
-	for ii := 0; ii < 10000; ii++ {
-		ints = append(ints, 0)
-	}
-
-	return ints
-}
 
 func main() {
 	// setup

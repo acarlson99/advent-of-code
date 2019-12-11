@@ -83,7 +83,7 @@ func exec_prog(arr []int, input myReader, output myWriter) {
 		case 99:
 			goto end
 		default:
-			fmt.Println("YIKES unexpected opcode", arr[ii], "IDX", ii)
+			fmt.Println("YIKES unexpected opcode", arr[ii])
 			ii++
 			ptrmod = true
 		}
