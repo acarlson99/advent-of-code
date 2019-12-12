@@ -1,65 +1,50 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"math"
+	"os"
 )
 
-type Triple struct {
-	x int
-	y int
-	z int
-}
-
 type Body struct {
-	p Triple
+	P []int
 
-	v Triple
+	V []int
 }
 
-func applyGrav(ii int, bodies []Body) Triple {
-	v := bodies[ii].v
-	p := bodies[ii].p
+func applyGrav(ii int, bodies []Body) []int {
+	v := append([]int(nil), bodies[ii].V...)
+	p := append([]int(nil), bodies[ii].P...)
 
 	for jj, body := range bodies {
 		if ii == jj {
 			continue
 		}
 
-		bp := body.p
+		bp := body.P
 
-		if p.x < bp.x {
-			v.x += 1
-		} else if p.x > bp.x {
-			v.x -= 1
-		}
-
-		if p.y < bp.y {
-			v.y += 1
-		} else if p.y > bp.y {
-			v.y -= 1
-		}
-
-		if p.z < bp.z {
-			v.z += 1
-		} else if p.z > bp.z {
-			v.z -= 1
+		for kk := range p {
+			if p[kk] < bp[kk] {
+				v[kk] += 1
+			} else if p[kk] > bp[kk] {
+				v[kk] -= 1
+			}
 		}
 	}
 	return v
 }
 
 func applyVelocity(body Body) Body {
-	p := body.p
-	v := body.v
-	return Body{Triple{p.x + v.x, p.y + v.y, p.z + v.z}, v}
+	p := body.P
+	v := body.V
+	return Body{[]int{p[0] + v[0], p[1] + v[1], p[2] + v[2]}, v}
 }
 
 func stepOne(bodies []Body) []Body {
 	newBods := []Body{}
 	for ii, body := range bodies {
 		velocity := applyGrav(ii, bodies)
-		b := applyVelocity(Body{body.p, velocity})
+		b := applyVelocity(Body{body.P, velocity})
 		newBods = append(newBods, b)
 	}
 	return newBods
@@ -72,27 +57,61 @@ func step(bodies []Body, n int) []Body {
 	return bodies
 }
 
-func sumTriple(t Triple) int {
-	return int(math.Abs(float64(t.x)) + math.Abs(float64(t.y)) + math.Abs(float64(t.z)))
-}
-
 func energy(bodies []Body) int {
 	total := 0
 	for _, body := range bodies {
-		pot := sumTriple(body.v)
-		kin := sumTriple(body.p)
+		pot := sumArr(body.V...)
+		kin := sumArr(body.P...)
 		total += pot * kin
 	}
 	return total
 }
 
-func main() {
-	bodies := []Body{
-		Body{Triple{5, 4, 4}, Triple{0, 0, 0}},
-		Body{Triple{-11, -11, -3}, Triple{0, 0, 0}},
-		Body{Triple{0, 7, 0}, Triple{0, 0, 0}},
-		Body{Triple{-13, 2, 10}, Triple{0, 0, 0}}}
+func findRep(bodies []Body) int {
+	coords := []int{0, 0, 0}
 
-	new := step(bodies, 1000)
-	fmt.Println("Part one:", energy(new))
+	initial := bodies
+	done := false
+	for ii := 1; !done; ii++ {
+		done = true
+		bodies = stepOne(bodies)
+
+		for jj := range coords {
+			if coords[jj] == 0 {
+				good := true
+				for idx, body := range bodies {
+					if body.V[jj] != initial[idx].V[jj] {
+						good = false
+						break
+					}
+				}
+				if good {
+					coords[jj] = ii * 2
+				}
+			}
+		}
+
+		for _, c := range coords {
+			if c == 0 {
+				done = false
+				break
+			}
+		}
+	}
+
+	return lcm(coords...)
+}
+
+func main() {
+	bodies := []Body{}
+
+	reader := bufio.NewReader(os.Stdin)
+	for text, _ := reader.ReadString('\n'); len(text) > 0; text, _ = reader.ReadString('\n') {
+		newBody := Body{[]int{0, 0, 0}, []int{0, 0, 0}}
+		fmt.Sscanf(text, "<x=%d, y=%d, z=%d>", &newBody.P[0], &newBody.P[1], &newBody.P[2])
+		bodies = append(bodies, newBody)
+	}
+
+	fmt.Println("Part one:", energy(step(bodies, 1000)))
+	fmt.Println("Part two:", findRep(bodies))
 }
