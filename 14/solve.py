@@ -41,57 +41,33 @@ for line in fileinput.input():
     reactions[output[1]] = (output[0], inList)
     # add rule to map of rules
 
+# simplify graph to float values for each resource
+def simplify_tree(root, graph, new):
+    if root in new:
+        return new[root]
+    total = 0
+    needed = graph[root]
+    for qty, name in needed[1]:
+        val = simplify_tree(name, graph, new)
+        total += val * qty
+    new[root] = total / needed[0]
+    return new[root]
+
 # backward chain FUEL
 amounts = {}
-print(backchain("FUEL", 1, amounts, reactions))
-print(amounts)
+print("Part one:", backchain("FUEL", 1, amounts, reactions))
 
-amounts = {}
-cycles = {}
-oreAmount = 1000000000000
-oreUsed = 0
-done = False
-# for ii in range(10000000):
-fuelGenerated = 0
-while not done:
-    tmp = backchain("FUEL", 1, amounts, reactions)
-    if oreUsed + tmp >= oreAmount:
-        print(fuelGenerated)
-        break
-    oreUsed += tmp
-    done = True
-    for n in amounts:
-        if amounts[n] != 0:
-            print(n, amounts[n])
-            done = False
-            break
-    fuelGenerated += 1
+# part two
+new = {"ORE": 1}
+simplify_tree("FUEL", reactions, new)
+print("Part two:", int(1000000000000 // new["FUEL"]))
 
-print(fuelGenerated)
-print("USED", oreUsed)
-print("LEFT", oreAmount - oreUsed)
+# 3 N => 1 F
+# 1 J => 2 N
 
-cycleGen = oreAmount // oreUsed
-print(cycleGen)
-fuelGenerated = fuelGenerated * cycleGen
-print(fuelGenerated)
-oreUsed = oreUsed * cycleGen
+# F = N*3
+# N = (1*J) / 2
 
-done = False
-while not done:
-    tmp = backchain("FUEL", 1, amounts, reactions)
-    # print(oreUsed)
-    if oreUsed + tmp >= oreAmount:
-        print(fuelGenerated)
-        break
-    oreUsed += tmp
-    done = True
-    for n in amounts:
-        if amounts[n] != 0:
-            done = False
-            break
-    fuelGenerated += 1
-
-print(fuelGenerated)
+# amount = (REQ * f(name)) / PRODUCED
 
 # 63097
