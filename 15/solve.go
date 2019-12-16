@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 
+	"gopkg.in/karalabe/cookiejar.v2/collections/queue"
 	"gopkg.in/karalabe/cookiejar.v2/collections/stack"
 )
 
@@ -33,7 +35,6 @@ func move_drone(pos [2]int, direction int) [2]int {
 }
 
 func find_path(dronePos, dest [2]int, space, visited [][]byte) []int {
-	// fmt.Println("NAV FROM", dronePos, "TO", dest)
 	if dronePos[0] == dest[0] && dronePos[1] == dest[1] {
 		return []int{}
 	}
@@ -41,10 +42,8 @@ func find_path(dronePos, dest [2]int, space, visited [][]byte) []int {
 	for _, n := range []int{1, 2, 3, 4} {
 		newPos := move_drone(dronePos, n)
 		if newPos[0] == dest[0] && newPos[1] == dest[1] {
-			// fmt.Println("FOUND", dronePos, dest)
 			return []int{n}
 		}
-		// fmt.Println("SPACE", newPos, space[newPos[1]][newPos[0]])
 		if newPos[0] < 0 || newPos[1] < 0 || newPos[0] > len(space) ||
 			newPos[1] > len(space) || visited[newPos[1]][newPos[0]] != 0 ||
 			space[newPos[1]][newPos[0]] == WALL ||
@@ -52,12 +51,9 @@ func find_path(dronePos, dest [2]int, space, visited [][]byte) []int {
 			space[newPos[1]][newPos[0]] == 0 {
 			continue
 		}
-		// fmt.Println("SPACE", space[newPos[1]][newPos[0]])
 		visited[newPos[1]][newPos[0]] = 100
 		path := find_path(newPos, dest, space, visited)
 		if path != nil {
-			// fmt.Println("PATH NOT NIL")
-			// fmt.Println(path, newPos, space[newPos[1]][newPos[0]])
 			return append(path, n)
 		}
 	}
@@ -67,7 +63,6 @@ func find_path(dronePos, dest [2]int, space, visited [][]byte) []int {
 // nav_to_node(dronePos, tmpNode, space, inChan, outChan)
 func nav_to_node(dronePos, dest [2]int, space [][]byte, inChan, outChan chan int) (int, [2]int, [2]int) {
 	if dronePos[0] == dest[0] && dronePos[1] == dest[1] {
-		// fmt.Println("No move")
 		return -1, dronePos, dronePos
 	}
 	visited := make([][]byte, len(space))
@@ -75,8 +70,6 @@ func nav_to_node(dronePos, dest [2]int, space [][]byte, inChan, outChan chan int
 		visited[n] = make([]byte, len(space[n]))
 	}
 	path := find_path(dronePos, dest, space, visited)
-	// fmt.Println("LEN", len(path))
-	// fmt.Println("DEST", dest, "POS", dronePos, path)
 	output := -1
 	tmp := [2]int{dronePos[0], dronePos[1]}
 	// newDrone := [2]int{-1, -1}
@@ -88,38 +81,41 @@ func nav_to_node(dronePos, dest [2]int, space [][]byte, inChan, outChan chan int
 		inChan <- input
 		output = <-outChan
 		if output == 0 && ii == 0 {
-			// fmt.Println("RETURNING", tmp, move_drone(tmp, path[ii]))
 			return output, tmp, move_drone(tmp, path[ii])
 		}
 		tmp = move_drone(tmp, path[ii])
-		// fmt.Println(space[tmp[1]][tmp[0]])
-		// fmt.Println(tmp)
-		// fmt.Println("IN:", input, "OUTPUT:", output)
 	}
-	// fmt.Println("A")
 	return output, tmp, tmp
 }
 
 func main() {
+	flag.Parse()
+	vis := false
+	if len(flag.Args()) > 0 {
+		vis = true
+	}
+
 	reader := bufio.NewReader(os.Stdin)
 	program := read_program(reader)
 	inChan := make(chan int)
 	outChan := make(chan int)
 	go exec_prog(program, myChan(inChan), myChan(outChan))
 
-	spaceSize := 64
+	spaceSize := 50
 	space := make([][]byte, spaceSize)
 	for n := range space {
 		space[n] = make([]byte, spaceSize)
 	}
 	// x,y
-	dronePos := [2]int{spaceSize / 2, spaceSize / 2}
+	dronePos := [2]int{spaceSize/2 + 1, spaceSize/2 + 1}
+	startPos := dronePos
+	oxygenPos := dronePos
 	// space[dronePos[1]][dronePos[0]] = VISITED
 
-	qu := stack.New()
-	qu.Push(dronePos)
-	for !qu.Empty() {
-		tmpNode := qu.Pop()
+	stk := stack.New()
+	stk.Push(dronePos)
+	for !stk.Empty() {
+		tmpNode := stk.Pop()
 		node := tmpNode.([2]int)
 		// check if node visited
 		if space[node[1]][node[0]] != 0 {
@@ -130,7 +126,6 @@ func main() {
 		dronePos = tmpPos
 		// mark value, etc
 		changed := false
-		// fmt.Println(dronePos, markPos)
 		if space[markPos[1]][markPos[0]] != 0 {
 			panic("REVISITING")
 		}
@@ -139,24 +134,18 @@ func main() {
 			space[markPos[1]][markPos[0]] = VISITED
 			changed = true
 		case 0:
-			// fmt.Println("WALL", markPos)
 			space[markPos[1]][markPos[0]] = WALL
 			changed = false
 		case 1:
-			// fmt.Println("VISITED", markPos)
 			space[markPos[1]][markPos[0]] = VISITED
-			// dronePos = markPos
 			changed = true
 		case 2:
-			// fmt.Println("OXYGEN", markPos)
 			space[markPos[1]][markPos[0]] = OXYGEN
-			// dronePos = markPos
+			oxygenPos = markPos
 			changed = true
 		default:
-			// fmt.Println("AAAAAAAAAAAAAAAAAAAAAAA", output)
 			panic("BAD")
 		}
-
 		// expand node
 		if changed {
 			for _, n := range []int{1, 2, 3, 4} {
@@ -164,29 +153,38 @@ func main() {
 				if newNode[0] < 0 || newNode[1] < 0 || newNode[0] > spaceSize || newNode[1] > spaceSize || space[newNode[1]][newNode[0]] != 0 {
 					continue
 				}
-				qu.Push(newNode)
+				stk.Push(newNode)
 			}
 		}
-		// tmp := space[node[1]][node[0]]
-		// space[node[1]][node[0]] = 'X'
 	}
-	for n := range space {
-		for _, c := range space[n] {
-			switch c {
-			case VISITED:
-				c = '.'
-			case WALL:
-				c = '#'
-			case OXYGEN:
-				c = 'O'
-			case 'X':
-				c = 'X'
-			default:
-				c = '?'
-			}
-			fmt.Printf("%c", c)
-		}
-		fmt.Println()
-	}
-	// space[node[1]][node[0]] = tmp
+
+	// for n := range space {
+	// 	for _, c := range space[n] {
+	// 		switch c {
+	// 		case VISITED:
+	// 			c = '.'
+	// 		case WALL:
+	// 			c = '#'
+	// 		case OXYGEN:
+	// 			c = 'O'
+	// 		case 'X':
+	// 			c = 'X'
+	// 		default:
+	// 			c = '?'
+	// 		}
+	// 		fmt.Printf("%c", c)
+	// 	}
+	// 	fmt.Println()
+	// }
+
+	// see search.go
+	endNode := find_optimal_path(startPos, oxygenPos, copy_byte_arr_arr(space))
+
+	space[oxygenPos[1]][oxygenPos[0]] = VISITED
+	qu := queue.New()
+	qu.Push(Node{oxygenPos, []int{}})
+	// see search.go
+	minutes := bfs_fill(qu, space, vis)
+	fmt.Println("Part one:", len(endNode.Path))
+	fmt.Println("Part two:", minutes)
 }
