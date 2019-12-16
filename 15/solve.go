@@ -4,8 +4,11 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"log"
 	"os"
+	"time"
 
+	gc "github.com/rthornton128/goncurses"
 	"gopkg.in/karalabe/cookiejar.v2/collections/queue"
 	"gopkg.in/karalabe/cookiejar.v2/collections/stack"
 )
@@ -80,6 +83,7 @@ func nav_to_node(dronePos, dest [2]int, space [][]byte, inChan, outChan chan int
 		input := path[ii]
 		inChan <- input
 		output = <-outChan
+		draw_map(space, tmp)
 		if output == 0 && ii == 0 {
 			return output, tmp, move_drone(tmp, path[ii])
 		}
@@ -88,10 +92,68 @@ func nav_to_node(dronePos, dest [2]int, space [][]byte, inChan, outChan chan int
 	return output, tmp, tmp
 }
 
+func draw_map(space [][]byte, bot [2]int) {
+	if vis != true {
+		return
+	}
+	for n := range space {
+		for x, c := range space[n] {
+			var color int16
+			switch c {
+			case VISITED:
+				c = '.'
+				color = 1
+			case WALL:
+				c = '#'
+				color = 2
+			case OXYGEN:
+				c = 'O'
+				color = 3
+			case 'X':
+				c = 'X'
+				color = 4
+			default:
+				c = ' '
+			}
+			stdscr.ColorOn(color)
+			stdscr.MovePrint(n, x, string(c))
+			stdscr.ColorOff(color)
+		}
+	}
+	if bot[0] != -1 {
+		stdscr.ColorOn(3)
+		stdscr.MovePrint(bot[1], bot[0], "Y")
+		stdscr.ColorOff(3)
+	}
+	stdscr.Refresh()
+	time.Sleep(10000000)
+}
+
+var stdscr *gc.Window
+var vis bool
+
 func main() {
 	flag.Parse()
-	vis := false
 	if len(flag.Args()) > 0 {
+		var err error
+		stdscr, err = gc.Init()
+		if err != nil {
+			log.Fatal("init:", err)
+		}
+
+		if !gc.HasColors() {
+			log.Fatal("Example requires a colour capable terminal")
+		}
+		if err := gc.StartColor(); err != nil {
+			log.Fatal(err)
+		}
+
+		gc.InitPair(1, gc.C_RED, gc.C_RED)
+		gc.InitPair(2, gc.C_BLACK, gc.C_CYAN)
+		gc.InitPair(3, gc.C_RED, gc.C_GREEN)
+		gc.InitPair(4, gc.C_YELLOW, gc.C_BLUE)
+		gc.Cursor(0)
+		stdscr.Keypad(true)
 		vis = true
 	}
 
@@ -146,6 +208,7 @@ func main() {
 		default:
 			panic("BAD")
 		}
+		draw_map(space, dronePos)
 		// expand node
 		if changed {
 			for _, n := range []int{1, 2, 3, 4} {
@@ -158,25 +221,6 @@ func main() {
 		}
 	}
 
-	// for n := range space {
-	// 	for _, c := range space[n] {
-	// 		switch c {
-	// 		case VISITED:
-	// 			c = '.'
-	// 		case WALL:
-	// 			c = '#'
-	// 		case OXYGEN:
-	// 			c = 'O'
-	// 		case 'X':
-	// 			c = 'X'
-	// 		default:
-	// 			c = '?'
-	// 		}
-	// 		fmt.Printf("%c", c)
-	// 	}
-	// 	fmt.Println()
-	// }
-
 	// see search.go
 	endNode := find_optimal_path(startPos, oxygenPos, copy_byte_arr_arr(space))
 
@@ -184,7 +228,10 @@ func main() {
 	qu := queue.New()
 	qu.Push(Node{oxygenPos, []int{}})
 	// see search.go
-	minutes := bfs_fill(qu, space, vis)
+	minutes := bfs_fill(qu, space)
+	if vis {
+		gc.End()
+	}
 	fmt.Println("Part one:", len(endNode.Path))
 	fmt.Println("Part two:", minutes)
 }

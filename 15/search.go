@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"gopkg.in/karalabe/cookiejar.v2/collections/queue"
 )
 
@@ -39,7 +37,8 @@ func find_optimal_path(startPos, oxygenPos [2]int, space [][]byte) Node {
 	return Node{}
 }
 
-func bfs_fill(qu *queue.Queue, space [][]byte, vis bool) int {
+func bfs_fill(qu *queue.Queue, space [][]byte) int {
+	draw_map(space, [2]int{-1, -1})
 	newQ := queue.New()
 	for !qu.Empty() {
 		tmpNode := qu.Pop()
@@ -62,29 +61,8 @@ func bfs_fill(qu *queue.Queue, space [][]byte, vis bool) int {
 			}
 		}
 	}
-	if vis {
-		fmt.Println()
-		for n := range space {
-			for _, c := range space[n] {
-				switch c {
-				case VISITED:
-					c = '.'
-				case WALL:
-					c = '#'
-				case OXYGEN:
-					c = 'O'
-				case 'X':
-					c = 'X'
-				default:
-					c = '?'
-				}
-				fmt.Printf("%c", c)
-			}
-			fmt.Println()
-		}
-	}
 	if newQ.Empty() {
 		return 0
 	}
-	return 1 + bfs_fill(newQ, space, vis)
+	return 1 + bfs_fill(newQ, space)
 }
