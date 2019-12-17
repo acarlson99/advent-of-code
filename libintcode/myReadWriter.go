@@ -1,4 +1,4 @@
-package main
+package libintcode
 
 import (
 	"bufio"
@@ -7,42 +7,42 @@ import (
 	"strconv"
 )
 
-type myWriter interface {
+type MyWriter interface {
 	// write int to storage.  Undefined if nothing to read
 	WriteInt(int)
 	// mark that no more output will be passed to WriteInt
 	Close()
 }
 
-type myReader interface {
+type MyReader interface {
 	// read and return int from storage, return true if more info to be read
 	ReadInt() (int, bool)
 }
 
-type myReadWriter interface {
-	myReader
-	myWriter
+type MyReadWriter interface {
+	MyReader
+	MyWriter
 }
 
-type myChan chan int
+type MyChan chan int
 
-func (ch myChan) ReadInt() (int, bool) {
+func (ch MyChan) ReadInt() (int, bool) {
 	a, b := <-ch
 	return a, b
 }
 
-func (ch myChan) WriteInt(n int) {
+func (ch MyChan) WriteInt(n int) {
 	ch <- n
 }
 
-func (ch myChan) Close() {
+func (ch MyChan) Close() {
 	close(ch)
 }
 
 // stdin/stdout struct
-type myStdin struct{}
+type MyStdin struct{}
 
-func (r myStdin) ReadInt() (int, bool) {
+func (r MyStdin) ReadInt() (int, bool) {
 	fmt.Printf("> ")
 	reader := bufio.NewReader(os.Stdin)
 	text, _ := reader.ReadString('\n')
@@ -53,32 +53,32 @@ func (r myStdin) ReadInt() (int, bool) {
 	return 0, true
 }
 
-type myStdout struct{}
+type MyStdout struct{}
 
-func (r myStdout) WriteInt(n int) {
+func (r MyStdout) WriteInt(n int) {
 	fmt.Println(n)
 }
 
-func (r myStdout) Close() {
+func (r MyStdout) Close() {
 }
 
 // single int input
-type myInt int
+type MyInt int
 
-func (ii myInt) ReadInt() (int, bool) {
+func (ii MyInt) ReadInt() (int, bool) {
 	return int(ii), true
 }
 
-func (ii myInt) Close() {
+func (ii MyInt) Close() {
 }
 
 // array of ints
-type myArr struct {
+type MyArr struct {
 	a  []int
 	ii int
 }
 
-func (a myArr) ReadInt() (int, bool) {
+func (a MyArr) ReadInt() (int, bool) {
 	num := 0
 	if a.ii < len(a.a) {
 		num = a.a[a.ii]
@@ -89,5 +89,5 @@ func (a myArr) ReadInt() (int, bool) {
 	return num, true
 }
 
-func (a myArr) Close() {
+func (a MyArr) Close() {
 }

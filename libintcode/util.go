@@ -1,4 +1,4 @@
-package main
+package libintcode
 
 import (
 	"io"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func copy_arr(base []int) []int {
+func Copy_arr(base []int) []int {
 	var a []int
 	for _, num := range base {
 		a = append(a, num)
@@ -14,7 +14,7 @@ func copy_arr(base []int) []int {
 	return a
 }
 
-func getArgs(arr, mode []int, ii, nargs, rel int) []int {
+func GetArgs(arr, mode []int, ii, nargs, rel int) []int {
 	ret := []int{}
 	for jj := 0; jj < nargs; jj++ {
 		n := 0
@@ -33,7 +33,7 @@ func getArgs(arr, mode []int, ii, nargs, rel int) []int {
 	return ret
 }
 
-func parseOp(op int) ([]int, int) {
+func ParseOp(op int) ([]int, int) {
 	modes := []int{}
 	pos := 100
 	for ii := 0; ii < 3; ii++ {
@@ -48,7 +48,7 @@ func parseOp(op int) ([]int, int) {
 }
 
 // return entire file as string
-func read_all(reader io.Reader) string {
+func Read_all(reader io.Reader) string {
 	s := ""
 	buf := make([]byte, 2048)
 	for n, _ := reader.Read(buf); n > 0; n, _ = reader.Read(buf) {
@@ -58,9 +58,9 @@ func read_all(reader io.Reader) string {
 }
 
 // read from reader, return arr of nums
-func read_program(reader io.Reader) []int {
+func Read_program(reader io.Reader) []int {
 	ints := []int{}
-	text := read_all(reader)
+	text := Read_all(reader)
 
 	for _, line := range strings.Split(text, "\n") {
 		ss := strings.Split(line, ",")

@@ -1,17 +1,17 @@
-package main
+package libintcode
 
 import (
 	"fmt"
 )
 
 type Opcode struct {
-	code int
-	args int
-	name string
-	desc string
+	Code int
+	Args int
+	Name string
+	Desc string
 }
 
-var ops []Opcode = []Opcode{
+var Ops []Opcode = []Opcode{
 	Opcode{0, 0, "NULL", "NULL"},
 	Opcode{1, 3, "ADD", "Add first two params and store in third"},
 	Opcode{2, 3, "MULT", "Mult first two params and store in third"},
@@ -29,7 +29,7 @@ var ops []Opcode = []Opcode{
 // write to input chan, read from output chan, closes output on exit
 // modifies arr
 // I/O may be blocking
-func exec_prog(arr []int, input myReader, output myWriter) {
+func Exec_prog(arr []int, input MyReader, output MyWriter) {
 	ii := 0
 	inputOpen := true
 	rel := 0
@@ -40,8 +40,8 @@ func exec_prog(arr []int, input myReader, output myWriter) {
 
 		ptrmod := false
 
-		modes, op := parseOp(arr[ii])
-		args := getArgs(arr, modes, ii, ops[op].args, rel)
+		modes, op := ParseOp(arr[ii])
+		args := GetArgs(arr, modes, ii, Ops[op].Args, rel)
 		switch op {
 		case 1:
 			arr[args[2]] = arr[args[0]] + arr[args[1]]
@@ -88,7 +88,7 @@ func exec_prog(arr []int, input myReader, output myWriter) {
 			ptrmod = true
 		}
 		if !ptrmod {
-			ii += ops[op].args + 1
+			ii += Ops[op].Args + 1
 		}
 	}
 
