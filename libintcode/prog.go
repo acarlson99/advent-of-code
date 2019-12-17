@@ -29,7 +29,7 @@ var Ops []Opcode = []Opcode{
 // write to input chan, read from output chan, closes output on exit
 // modifies arr
 // I/O may be blocking
-func Exec_prog(arr []int, input MyReader, output MyWriter) {
+func Exec_prog(arr []int, input INTCReader, output INTCWriter) {
 	ii := 0
 	inputOpen := true
 	rel := 0

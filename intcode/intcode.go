@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	intcode "github.com/acarlson99/advent-of-code/tree/master/libintcode"
+	intcode "github.com/acarlson99/advent-of-code/libintcode"
 )
 
 func main() {
@@ -48,5 +48,5 @@ func main() {
 	}
 	program := intcode.Read_program(reader)
 
-	intcode.Exec_prog(intcode.Copy_arr(program), intcode.MyStdin{}, intcode.MyStdout{})
+	intcode.Exec_prog(intcode.Copy_arr(program), intcode.INTCStdin{}, intcode.INTCStdout{})
 }

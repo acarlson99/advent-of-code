@@ -7,42 +7,42 @@ import (
 	"strconv"
 )
 
-type MyWriter interface {
+type INTCWriter interface {
 	// write int to storage.  Undefined if nothing to read
 	WriteInt(int)
 	// mark that no more output will be passed to WriteInt
 	Close()
 }
 
-type MyReader interface {
+type INTCReader interface {
 	// read and return int from storage, return true if more info to be read
 	ReadInt() (int, bool)
 }
 
-type MyReadWriter interface {
-	MyReader
-	MyWriter
+type INTCReadWriter interface {
+	INTCReader
+	INTCWriter
 }
 
-type MyChan chan int
+type INTCChan chan int
 
-func (ch MyChan) ReadInt() (int, bool) {
+func (ch INTCChan) ReadInt() (int, bool) {
 	a, b := <-ch
 	return a, b
 }
 
-func (ch MyChan) WriteInt(n int) {
+func (ch INTCChan) WriteInt(n int) {
 	ch <- n
 }
 
-func (ch MyChan) Close() {
+func (ch INTCChan) Close() {
 	close(ch)
 }
 
 // stdin/stdout struct
-type MyStdin struct{}
+type INTCStdin struct{}
 
-func (r MyStdin) ReadInt() (int, bool) {
+func (r INTCStdin) ReadInt() (int, bool) {
 	fmt.Printf("> ")
 	reader := bufio.NewReader(os.Stdin)
 	text, _ := reader.ReadString('\n')
@@ -53,32 +53,32 @@ func (r MyStdin) ReadInt() (int, bool) {
 	return 0, true
 }
 
-type MyStdout struct{}
+type INTCStdout struct{}
 
-func (r MyStdout) WriteInt(n int) {
+func (r INTCStdout) WriteInt(n int) {
 	fmt.Println(n)
 }
 
-func (r MyStdout) Close() {
+func (r INTCStdout) Close() {
 }
 
 // single int input
-type MyInt int
+type INTCInt int
 
-func (ii MyInt) ReadInt() (int, bool) {
+func (ii INTCInt) ReadInt() (int, bool) {
 	return int(ii), true
 }
 
-func (ii MyInt) Close() {
+func (ii INTCInt) Close() {
 }
 
 // array of ints
-type MyArr struct {
+type INTCArr struct {
 	a  []int
 	ii int
 }
 
-func (a MyArr) ReadInt() (int, bool) {
+func (a INTCArr) ReadInt() (int, bool) {
 	num := 0
 	if a.ii < len(a.a) {
 		num = a.a[a.ii]
@@ -89,5 +89,5 @@ func (a MyArr) ReadInt() (int, bool) {
 	return num, true
 }
 
-func (a MyArr) Close() {
+func (a INTCArr) Close() {
 }

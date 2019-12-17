@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+
+	intcode "github.com/acarlson99/advent-of-code/libintcode"
 )
 
 // return num of pannels it paints
@@ -29,9 +31,9 @@ func repair_robot(program []int, startingColor int) (int, [][]int) {
 	botFacing := 0
 	dirs := [][]int{{0, -1}, {1, 0}, {0, 1}, {-1, 0}}
 
-	input := myChan(make(chan int))
-	output := myChan(make(chan int))
-	go exec_prog(program, input, output)
+	input := intcode.INTCChan(make(chan int))
+	output := intcode.INTCChan(make(chan int))
+	go intcode.Exec_prog(program, input, output)
 
 	hull[botY][botX] = startingColor
 
@@ -84,12 +86,12 @@ func main() {
 		panic(err)
 	}
 	reader := bufio.NewReader(inFile)
-	program := read_program(reader)
-	total, _ := repair_robot(copy_arr(program), 0)
+	program := intcode.Read_program(reader)
+	total, _ := repair_robot(intcode.Copy_arr(program), 0)
 	fmt.Println("Part one:", total)
 
 	fmt.Println("Part two:")
-	total, hull := repair_robot(copy_arr(program), 1)
+	total, hull := repair_robot(intcode.Copy_arr(program), 1)
 
 	// trim output to only what I need
 	lines := [][]int{}
