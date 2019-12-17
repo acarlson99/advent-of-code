@@ -91,3 +91,14 @@ func (a INTCArr) ReadInt() (int, bool) {
 
 func (a INTCArr) Close() {
 }
+
+type INTCArrWriter struct {
+	a *[]int
+}
+
+func (a INTCArrWriter) WriteInt(n int) {
+	*a.a = append(*a.a, n)
+}
+
+func (a INTCArrWriter) Close() {
+}
