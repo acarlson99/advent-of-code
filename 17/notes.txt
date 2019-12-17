@@ -1,0 +1,62 @@
+L,12,R,4,R,4,L,6,L,12,R,4,R,4,R,12,L,12, # right above start
+R,4,R,4,L,6,L,10, # around halfway mark toward bottom
+L,6,R,4,L,12,R,4,R,4,L,6,L,12,R,4,R,4, # bottom-right of top-right square facing down
+R,12,L,10,L,6,R,4,L,12,R,4,R,4, # end of bottom-right square facing left
+R,12,L,10,L,6,R,4,L,12,R,4,R,4,L,6 # end
+
+L,12,R,4,R,4,L,6,
+L,12,R,4,R,4,R,12,
+L,12,R,4,R,4,L,6,L,10,L,6,R,4,
+L,12,R,4,R,4,L,6,
+L,12,R,4,R,4,R,12,L,10,L,6,R,4,
+L,12,R,4,R,4,R,12,L,10,L,6,R,4,
+L,12,R,4,R,4,L,6
+
+L,12,R,4,R,4,		L,6,
+L,12,R,4,R,4,		R,12,
+L,12,R,4,R,4,		L,6,L,10,L,6,R,4,
+L,12,R,4,R,4,		L,6,
+L,12,R,4,R,4,		R,12,L,10,L,6,R,4,
+L,12,R,4,R,4,		R,12,L,10,L,6,R,4,
+L,12,R,4,R,4,		L,6
+
+A = L,12,R,4,R,4,
+A,		L,6,
+A,		R,12,
+A,		L,6,L,10,L,6,R,4,
+A,		L,6,
+A,		R,12,L,10,L,6,R,4,
+A,		R,12,L,10,L,6,R,4,
+A,		L,6
+
+A = L,12,R,4,R,4,
+A,		L,6,
+A,		R,12,
+A,		L,		6,L,10,L,6,R,4,
+A,		L,6,
+A,		R,6,	6,L,10,L,6,R,4,
+A,		R,6,	6,L,10,L,6,R,4,
+A,		L,6
+
+A = L,12,R,4,R,4,
+B = 6,L,10,L,6,R,4,
+A,		L,6,
+A,		R,12,
+A,		L,		B,
+A,		L,6,
+A,		R,6,	B,
+A,		R,6,	B,
+A,		L,6
+
+A = L,12,R,4,R,4,
+B = 6,L,10,L,6,R,4,
+C = A,R,6,
+A,		L,6,
+C,	6
+A,		L,		B,
+A,		L,6,
+C,	B,
+C,	B,
+A,		L,6
+
+A,L,6,C,6A,L,B,A,L,6,C,B,C,B,A,L,6
