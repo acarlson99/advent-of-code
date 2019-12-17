@@ -13,19 +13,10 @@ func check_xy(x, y int, arr [][]string) bool {
 	return arr[y][x] == "#"
 }
 
-func main() {
-	// setup
-	reader := bufio.NewReader(os.Stdin)
-	program := read_program(reader)
-
-	a := []int{}
-	arrOut := myArrWriter{&a}
-
-	exec_prog(copy_arr(program), myChan(make(chan int)), arrOut)
-
+func interpret_output(out []int) [][]string {
 	whole := [][]string{}
 	working := []string{}
-	for _, n := range a {
+	for _, n := range out {
 		switch n {
 		case 35:
 			working = append(working, "#")
@@ -34,8 +25,28 @@ func main() {
 		case 10:
 			whole = append(whole, working)
 			working = []string{}
+		default:
+			working = append(working, string(byte(n)))
 		}
 	}
+	if len(working) > 0 {
+		whole = append(whole, working)
+	}
+	return whole
+}
+
+func main() {
+	// setup
+	reader := bufio.NewReader(os.Stdin)
+	program := read_program(reader)
+
+	a := []int{}
+	arrOut := myArrWriter{&a}
+
+	// Part one
+	exec_prog(copy_arr(program), myChan(make(chan int)), arrOut)
+
+	whole := interpret_output(a)
 
 	total := 0
 	for y, line := range whole {
@@ -45,11 +56,55 @@ func main() {
 				check_xy(x, y-1, whole) &&
 				check_xy(x+1, y, whole) &&
 				check_xy(x-1, y, whole) {
-				whole[y][x] = "0"
 				total += x * y
 			}
 		}
 	}
 
+	for _, line := range whole {
+		fmt.Println(line)
+	}
+
 	fmt.Println("Part one:", total)
+
+	// Part two
+	program[0] = 2
+	inChan := make(chan int)
+	outChan := make(chan int)
+
+	go exec_prog(copy_arr(program), myChan(inChan), myChan(outChan))
+
+	arrIdx := 0
+	arrNIdx := 0
+	inArrs := [][]int{
+		[]int{'A', ',', 'B', ',', 'A', ',', 'C', ',', 'A', ',', 'B', ',', 'C', ',', 'B', ',', 'C', ',', 'A', '\n'},
+		[]int{'L', ',', '1', '2', ',', 'R', ',', '4', ',', 'R', ',', '4', ',', 'L', ',', '6', '\n'},
+		[]int{'L', ',', '1', '2', ',', 'R', ',', '4', ',', 'R', ',', '4', ',', 'R', ',', '1', '2', '\n'},
+		[]int{'L', ',', '1', '0', ',', 'L', ',', '6', ',', 'R', ',', '4', '\n'},
+		[]int{'n', '\n'},
+		[]int{'0'},
+	}
+
+	output := 0
+	for {
+		select {
+		case output2 := <-outChan:
+			if output2 == 0 {
+				goto end
+			} else {
+				output = output2
+			}
+		case inChan <- inArrs[arrIdx][arrNIdx]:
+			if inArrs[arrIdx][arrNIdx] == '\n' {
+				arrNIdx = 0
+				arrIdx++
+			} else {
+				arrNIdx++
+			}
+		default:
+			break
+		}
+	}
+end:
+	fmt.Println("Part two:", output)
 }

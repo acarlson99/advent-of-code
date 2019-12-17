@@ -4,59 +4,49 @@ L,6,R,4,L,12,R,4,R,4,L,6,L,12,R,4,R,4, # bottom-right of top-right square facing
 R,12,L,10,L,6,R,4,L,12,R,4,R,4, # end of bottom-right square facing left
 R,12,L,10,L,6,R,4,L,12,R,4,R,4,L,6 # end
 
-L,12,R,4,R,4,L,6,
-L,12,R,4,R,4,R,12,
-L,12,R,4,R,4,L,6,L,10,L,6,R,4,
-L,12,R,4,R,4,L,6,
-L,12,R,4,R,4,R,12,L,10,L,6,R,4,
-L,12,R,4,R,4,R,12,L,10,L,6,R,4,
-L,12,R,4,R,4,L,6
+L,12,R,4,R,4,L,6,L,12,R,4,R,4,R,12,L,12,R,4,R,4,L,6,L,10,L,6,R,4,L,12,R,4,R,4,L,6,L,12,R,4,R,4,R,12,L,10,L,6,R,4,L,12,R,4,R,4,R,12,L,10,L,6,R,4,L,12,R,4,R,4,L,6
 
-L,12,R,4,R,4,		L,6,
-L,12,R,4,R,4,		R,12,
-L,12,R,4,R,4,		L,6,L,10,L,6,R,4,
-L,12,R,4,R,4,		L,6,
-L,12,R,4,R,4,		R,12,L,10,L,6,R,4,
-L,12,R,4,R,4,		R,12,L,10,L,6,R,4,
-L,12,R,4,R,4,		L,6
+A = L,12
+B = R,4
+C = L,6
+D = R,12
+E = L,10
+A,B,B,C,A,B,B,D,A,B,B,C,E,C,B,A,B,B,C,A,B,B,D,E,C,B,A,B,B,D,E,C,B,A,B,B,C
 
-A = L,12,R,4,R,4,
-A,		L,6,
-A,		R,12,
-A,		L,6,L,10,L,6,R,4,
-A,		L,6,
-A,		R,12,L,10,L,6,R,4,
-A,		R,12,L,10,L,6,R,4,
-A,		L,6
 
-A = L,12,R,4,R,4,
-A,		L,6,
-A,		R,12,
-A,		L,		6,L,10,L,6,R,4,
-A,		L,6,
-A,		R,6,	6,L,10,L,6,R,4,
-A,		R,6,	6,L,10,L,6,R,4,
-A,		L,6
+ABB
+C
+ABB
+D
+ABB
+C
+ECB
+ABB
+C
+ABB
+D
+ECB
+ABB
+D
+ECB
+ABB
+C
 
-A = L,12,R,4,R,4,
-B = 6,L,10,L,6,R,4,
-A,		L,6,
-A,		R,12,
-A,		L,		B,
-A,		L,6,
-A,		R,6,	B,
-A,		R,6,	B,
-A,		L,6
+FA = L,12,R,4,R,4,L,6
+FB = L,12,R,4,R,4,R,12
+FC = L,10,L,6,R,4
+ABBC
+ABBD
+ABBC
+ECB
+ABBC
+ABBD
+ECB
+ABBD
+ECB
+ABBC
 
-A = L,12,R,4,R,4,
-B = 6,L,10,L,6,R,4,
-C = A,R,6,
-A,		L,6,
-C,	6
-A,		L,		B,
-A,		L,6,
-C,	B,
-C,	B,
-A,		L,6
-
-A,L,6,C,6A,L,B,A,L,6,C,B,C,B,A,L,6
+M = A,B,A,C,A,B,C,B,C,A
+A = L,12,R,4,R,4,L,6
+B = L,12,R,4,R,4,R,12
+C = L,10,L,6,R,4
