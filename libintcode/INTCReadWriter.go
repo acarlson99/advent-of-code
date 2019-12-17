@@ -74,17 +74,17 @@ func (ii INTCInt) Close() {
 
 // array of ints
 type INTCArr struct {
-	a  []int
-	ii int
+	A  []int
+	II int
 }
 
 func (a INTCArr) ReadInt() (int, bool) {
 	num := 0
-	if a.ii < len(a.a) {
-		num = a.a[a.ii]
-		a.ii++
+	if a.II < len(a.A) {
+		num = a.A[a.II]
+		a.II++
 	} else {
-		num = a.a[len(a.a)-1]
+		num = a.A[len(a.A)-1]
 	}
 	return num, true
 }
@@ -93,11 +93,11 @@ func (a INTCArr) Close() {
 }
 
 type INTCArrWriter struct {
-	a *[]int
+	A *[]int
 }
 
 func (a INTCArrWriter) WriteInt(n int) {
-	*a.a = append(*a.a, n)
+	*a.A = append(*a.A, n)
 }
 
 func (a INTCArrWriter) Close() {

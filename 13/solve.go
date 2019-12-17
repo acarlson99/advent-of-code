@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	intcode "../libintcode"
 )
 
 func selectVal(a, b int) (r int) {
@@ -18,14 +20,14 @@ func selectVal(a, b int) (r int) {
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
-	program := read_program(reader)
+	program := intcode.Read_program(reader)
 
 	program[0] = 2
 
-	progIn := myChan(make(chan int))
-	progOut := myChan(make(chan int))
+	progIn := intcode.INTCChan(make(chan int))
+	progOut := intcode.INTCChan(make(chan int))
 
-	go exec_prog(program, progIn, progOut)
+	go intcode.Exec_prog(program, progIn, progOut)
 
 	// x,y,val
 	outs := []int{0, 0, 0}

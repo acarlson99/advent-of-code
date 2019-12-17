@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	intcode "../libintcode"
 )
 
 func check_xy(x, y int, arr [][]string) bool {
@@ -37,13 +39,13 @@ func interpret_output(out []int) [][]string {
 func main() {
 	// setup
 	reader := bufio.NewReader(os.Stdin)
-	program := read_program(reader)
+	program := intcode.Read_program(reader)
 
 	a := []int{}
-	arrOut := myArrWriter{&a}
+	arrOut := intcode.INTCArrWriter{&a}
 
 	// Part one
-	exec_prog(copy_arr(program), myChan(make(chan int)), arrOut)
+	intcode.Exec_prog(intcode.Copy_arr(program), intcode.INTCChan(make(chan int)), arrOut)
 
 	whole := interpret_output(a)
 
@@ -71,7 +73,7 @@ func main() {
 	inChan := make(chan int)
 	outChan := make(chan int)
 
-	go exec_prog(copy_arr(program), myChan(inChan), myChan(outChan))
+	go intcode.Exec_prog(intcode.Copy_arr(program), intcode.INTCChan(inChan), intcode.INTCChan(outChan))
 
 	arrIdx := 0
 	arrNIdx := 0

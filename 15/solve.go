@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	intcode "../libintcode"
 	gc "github.com/rthornton128/goncurses"
 	"gopkg.in/karalabe/cookiejar.v2/collections/queue"
 	"gopkg.in/karalabe/cookiejar.v2/collections/stack"
@@ -158,16 +159,17 @@ func main() {
 	}
 
 	reader := bufio.NewReader(os.Stdin)
-	program := read_program(reader)
+	program := intcode.Read_program(reader)
 	inChan := make(chan int)
 	outChan := make(chan int)
-	go exec_prog(program, myChan(inChan), myChan(outChan))
+	go intcode.Exec_prog(program, intcode.INTCChan(inChan), intcode.INTCChan(outChan))
 
 	spaceSize := 50
 	space := make([][]byte, spaceSize)
 	for n := range space {
 		space[n] = make([]byte, spaceSize)
 	}
+
 	// x,y
 	dronePos := [2]int{spaceSize/2 + 1, spaceSize/2 + 1}
 	startPos := dronePos

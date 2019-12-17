@@ -2,11 +2,10 @@ package main
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"os"
 
-	intcode "github.com/acarlson99/advent-of-code/libintcode"
+	intcode "../libintcode"
 )
 
 // return num of pannels it paints
@@ -79,13 +78,7 @@ func repair_robot(program []int, startingColor int) (int, [][]int) {
 }
 
 func main() {
-	flag.Parse()
-	args := flag.Args()
-	inFile, err := os.Open(args[0])
-	if err != nil {
-		panic(err)
-	}
-	reader := bufio.NewReader(inFile)
+	reader := bufio.NewReader(os.Stdin)
 	program := intcode.Read_program(reader)
 	total, _ := repair_robot(intcode.Copy_arr(program), 0)
 	fmt.Println("Part one:", total)

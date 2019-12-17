@@ -26,5 +26,5 @@ END {
 			total++
 		}
 	}
-	print total
+	print "Part one: " total
 }
