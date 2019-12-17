@@ -23,14 +23,13 @@ func interpret_output(out []int) [][]string {
 		case 46:
 			working = append(working, ".")
 		case 10:
-			whole = append(whole, working)
-			working = []string{}
+			if len(working) > 0 {
+				whole = append(whole, working)
+				working = []string{}
+			}
 		default:
 			working = append(working, string(byte(n)))
 		}
-	}
-	if len(working) > 0 {
-		whole = append(whole, working)
 	}
 	return whole
 }
