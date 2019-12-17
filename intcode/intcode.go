@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	intcode "github.com/acarlson99/advent-of-code/libintcode"
+	intcode "../libintcode"
 )
 
 func main() {
