@@ -59,7 +59,26 @@ func (r INTCStdout) WriteInt(n int) {
 	fmt.Println(n)
 }
 
-func (r INTCStdout) Close() {
+type INTCStdoutSep struct {
+	Sep string
+	End string
+	ii  int
+}
+
+func NewStdoutSep(sep, end string) *INTCStdoutSep {
+	return &INTCStdoutSep{sep, end, 0}
+}
+
+func (r *INTCStdoutSep) WriteInt(n int) {
+	if r.ii != 0 {
+		fmt.Printf(r.Sep)
+	}
+	r.ii++
+	fmt.Printf("%d", n)
+}
+
+func (r *INTCStdoutSep) Close() {
+	fmt.Printf(r.End)
 }
 
 // single int input

@@ -13,40 +13,48 @@ import (
 
 func main() {
 	// setup
-	var file, string, stdin bool
-	flag.BoolVar(&file, "f", false, "Read from file")
-	flag.BoolVar(&string, "s", false, "Read from string")
+	var stdin bool
+	var file, stringIn string
+	flag.StringVar(&file, "f", "", "Read from file")
+	flag.StringVar(&stringIn, "s", "", "Read from string")
 	flag.BoolVar(&stdin, "i", false, "Read from stdin")
+
+	var sep, end string
+	flag.StringVar(&end, "end", "\n", "End of input string")
+	flag.StringVar(&sep, "sep", "\n", "Separator string")
+
+	var assemble, disassemble, evaluate bool
+	flag.BoolVar(&assemble, "a", false, "Assemble input")
+	flag.BoolVar(&disassemble, "d", false, "Disassemble input")
+	flag.BoolVar(&evaluate, "e", false, "Evaluate input")
+
 	flag.Parse()
 
-	args := flag.Args()
-
 	var reader io.Reader
-	if file {
-		if len(args) != 1 {
-			fmt.Println("usage: ./intcode -f filename")
-			flag.Usage()
-			os.Exit(1)
-		}
-		inFile, err := os.Open(args[0])
+	if file != "" {
+		inFile, err := os.Open(file)
 		if err != nil {
 			panic(err) // TODO: address error
 		}
 		reader = bufio.NewReader(inFile)
-	} else if string {
-		if len(args) != 1 {
-			fmt.Println("usage: ./intcode -s filename")
-			flag.Usage()
-			os.Exit(1)
-		}
-		reader = strings.NewReader(args[0])
+	} else if stringIn != "" {
+		reader = strings.NewReader(stringIn)
 	} else if stdin {
 		reader = bufio.NewReader(os.Stdin)
 	} else {
 		flag.Usage()
 		os.Exit(1)
 	}
-	program := intcode.Read_program(reader)
 
-	intcode.Exec_prog(intcode.Copy_arr(program), intcode.INTCStdin{}, intcode.INTCStdout{})
+	if evaluate {
+		program := intcode.Read_program(reader)
+		intcode.Exec_prog(intcode.Copy_arr(program), &intcode.INTCStdin{}, intcode.NewStdoutSep(sep, end))
+	} else if assemble {
+		fmt.Println("Assembly not yet implemented")
+	} else if disassemble {
+		fmt.Println("Disassembly not yet implemented")
+	} else {
+		flag.Usage()
+		os.Exit(1)
+	}
 }
