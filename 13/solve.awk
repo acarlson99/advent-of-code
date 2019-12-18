@@ -1,30 +1,17 @@
-# ../intcode/intcode -f input.txt | awk -f solve.awk
+# ../intcode/intcode -e -f input.txt | awk -f solve.awk
 
 BEGIN {
+	total = 0
 	lineNum = 0
 }
 
 {
-	switch (lineNum % 3) {
-	case 0:
-		x = $1
-		break
-	case 1:
-		y = $1
-		break
-	case 2:
-		a[x "," y] = $1
-		break
+	if (lineNum % 3 == 2 && $1 == "2") {
+		total++
 	}
 	lineNum++
 }
 
 END {
-	total = 0
-	for (ii in a) {
-		if (a[ii] == "2") {
-			total++
-		}
-	}
 	print "Part one: " total
 }

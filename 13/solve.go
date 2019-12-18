@@ -22,6 +22,19 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 	program := intcode.Read_program(reader)
 
+	a := []int{}
+	arrOut := intcode.INTCArrWriter{&a}
+
+	intcode.Exec_prog(intcode.Copy_arr(program), intcode.INTCStdin{}, arrOut)
+	total := 0
+	for ii := 2; ii < len(a); ii += 3 {
+		z := a[ii]
+		if z == 2 {
+			total++
+		}
+	}
+	fmt.Println("Part one:", total)
+
 	program[0] = 2
 
 	progIn := intcode.INTCChan(make(chan int))

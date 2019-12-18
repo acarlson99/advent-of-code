@@ -42,6 +42,7 @@ func main() {
 	} else if stdin {
 		reader = bufio.NewReader(os.Stdin)
 	} else {
+		fmt.Println("Specify input method (stdin, string, file)")
 		flag.Usage()
 		os.Exit(1)
 	}
@@ -54,6 +55,7 @@ func main() {
 	} else if disassemble {
 		fmt.Println("Disassembly not yet implemented")
 	} else {
+		fmt.Println("Specify action (asm, disasm, eval)")
 		flag.Usage()
 		os.Exit(1)
 	}
