@@ -97,7 +97,7 @@ type INTCArr struct {
 	II int
 }
 
-func (a INTCArr) ReadInt() (int, bool) {
+func (a *INTCArr) ReadInt() (int, bool) {
 	num := 0
 	if a.II < len(a.A) {
 		num = a.A[a.II]
@@ -108,7 +108,7 @@ func (a INTCArr) ReadInt() (int, bool) {
 	return num, true
 }
 
-func (a INTCArr) Close() {
+func (a *INTCArr) Close() {
 }
 
 type INTCArrWriter struct {
