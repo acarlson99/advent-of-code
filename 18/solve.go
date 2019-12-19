@@ -10,76 +10,19 @@ import (
 )
 
 type State struct {
-	x    int
-	y    int
-	keys [26]bool
-	dist int
-}
-
-func (s *State) Hash() uint64 {
-	str := fmt.Sprintf("%v,%v,%v", s.x, s.y, s.keys)
-	h := fnv.New64()
-	h.Write([]byte(str))
-	return h.Sum64()
-}
-
-func (s *State) Copy() State {
-	keys := [26]bool{}
-	for ii, k := range s.keys {
-		keys[ii] = k
-	}
-	newS := State{s.x, s.y, keys, s.dist}
-	return newS
-}
-
-func (s *State) Expand() []State {
-	r := []State{}
-
-	for _, val := range [][]int{
-		[]int{-1, 0},
-		[]int{1, 0},
-		[]int{0, -1},
-		[]int{0, 1},
-	} {
-		newS := s.Copy()
-		newS.x += val[0]
-		newS.y += val[1]
-		newS.dist++
-		r = append(r, newS)
-	}
-	return r
-}
-
-func (s *State) Check(maze [][]byte) bool {
-	c := maze[s.y][s.x]
-	if c == '#' {
-		return false
-	} else if c >= 'A' && c <= 'Z' { // door
-		c += 32
-		return s.keys[c-'a']
-	} else if c >= 'a' && c <= 'z' { // key
-		s.keys[c-'a'] = true
-		return true
-	} else if c == '@' {
-		return true
-	}
-	return true
-}
-
-type State2 struct {
 	positions [][2]int
 	keys      [26]bool
 	dist      int
 }
 
-func (s *State2) Hash() uint64 {
+func (s *State) Hash() uint64 {
 	str := fmt.Sprintf("%v:%v", s.positions, s.keys)
 	h := fnv.New64()
 	h.Write([]byte(str))
 	return h.Sum64()
 }
 
-func (s *State2) Copy() State2 {
+func (s *State) Copy() State {
 	newPos := [][2]int{}
 	var newKeys [26]bool
 
@@ -90,11 +33,11 @@ func (s *State2) Copy() State2 {
 	for ii, v := range s.keys {
 		newKeys[ii] = v
 	}
-	return State2{newPos, newKeys, s.dist}
+	return State{newPos, newKeys, s.dist}
 }
 
-func (s *State2) Expand() []State2 {
-	r := []State2{}
+func (s *State) Expand() []State {
+	r := []State{}
 
 	for _, val := range [][]int{
 		[]int{-1, 0},
@@ -113,7 +56,7 @@ func (s *State2) Expand() []State2 {
 	return r
 }
 
-func (s *State2) Check(idx int, maze [][]byte) bool {
+func (s *State) Check(maze [][]byte) bool {
 	for _, pos := range s.positions {
 		c := maze[pos[1]][pos[0]]
 		if c == '#' {
@@ -123,27 +66,18 @@ func (s *State2) Check(idx int, maze [][]byte) bool {
 			if !s.keys[c-'a'] {
 				return false
 			}
-			// return s.keys[c-'a']
 		} else if c >= 'a' && c <= 'z' { // key
 			s.keys[c-'a'] = true
-			// return true
 		} else if c == '@' {
-			// return true
 		}
-		// return true
 	}
 	return true
 }
 
-func partOne(startX, startY, targetKeys int, maze [][]byte) int {
+func solve(initState State, targetKeys int, maze [][]byte) int {
 	// seen states
 	seen := make(map[uint64]int)
 	qu := queue.New()
-
-	initState := State{}
-	initState.dist = 0
-	initState.x = startX
-	initState.y = startY
 
 	// enqueue init state
 	qu.Push(initState)
@@ -156,6 +90,7 @@ func partOne(startX, startY, targetKeys int, maze [][]byte) int {
 				numKeys++
 			}
 		}
+
 		if numKeys >= targetKeys {
 			return node.dist
 		}
@@ -182,7 +117,6 @@ func partOne(startX, startY, targetKeys int, maze [][]byte) int {
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
-	// maze := []string{}
 	maze := [][]byte{}
 	for line, _, err := reader.ReadLine(); err == nil; line, _, err = reader.ReadLine() {
 		buf := make([]byte, len(line))
@@ -193,12 +127,12 @@ func main() {
 	numKeys := 0
 	for _, line := range maze {
 		for _, c := range line {
-			fmt.Printf("%c", c)
+			// fmt.Printf("%c", c)
 			if c >= 'a' && c <= 'z' {
 				numKeys++
 			}
 		}
-		fmt.Println()
+		// fmt.Println()
 	}
 
 	startX := 0
@@ -212,7 +146,14 @@ func main() {
 		}
 	}
 
-	fmt.Println("Part one:", partOne(startX, startY, numKeys, maze))
+	initState := State{}
+	initState.dist = 0
+	initState.positions = [][2]int{[2]int{startX, startY}}
+
+	fmt.Println("Part one:", solve(initState, numKeys, maze))
+
+	// initState = State{}
+	// initState.dist = 0
 
 	// for y := -1; y <= 1; y++ {
 	// 	for x := -1; x <= 1; x++ {
@@ -220,20 +161,12 @@ func main() {
 	// 		ny := startY + y
 	// 		if x != 0 && y != 0 {
 	// 			maze[ny][nx] = '@'
+	// 			initState.positions = append(initState.positions, [2]int{nx, ny})
 	// 		} else {
 	// 			maze[ny][nx] = '#'
 	// 		}
 	// 	}
 	// }
 
-	// numKeys = 0
-	// for _, line := range maze {
-	// 	for _, c := range line {
-	// 		fmt.Printf("%c", c)
-	// 		if c >= 'a' && c <= 'z' {
-	// 			numKeys++
-	// 		}
-	// 	}
-	// 	fmt.Println()
-	// }
+	// fmt.Println("Part two:", solve(initState, numKeys, maze))
 }
