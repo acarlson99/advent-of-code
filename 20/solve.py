@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 
-
 import fileinput
 import networkx as nx
 
 def check(x, y, inArr):
-    print(x,y)
     if x < 0 or y < 0 or y >= len(inArr) or x >= len(inArr[y]) or inArr[y][x] != '.':
         return False
     return True
@@ -19,16 +17,16 @@ def getName2(x, y, inArr):
         return str(x) + "," + str(y)
     c2 = ""
     if x > 0 and isalpha(inArr[y][x-1]):
+        return getName2(x-1, y, inArr)
         c2 = inArr[y][x-1]
     elif x < len(inArr[y]) and isalpha(inArr[y][x+1]):
         c2 = inArr[y][x+1]
     elif y > 0 and isalpha(inArr[y-1][x]):
+        return getName2(x, y-1, inArr)
         c2 = inArr[y-1][x]
     elif y < len(inArr) and isalpha(inArr[y+1][x]):
         c2 = inArr[y+1][x]
-    names = [c, c2]
-    names.sort()
-    return names[0] + "," + names[1]
+    return c + "," + c2
 
 def getName(x, y, inArr):
     for x1,y1 in [(1,0), (-1,0), (0,1), (0,-1)]:
@@ -40,37 +38,62 @@ def getName(x, y, inArr):
             return getName2(x2, y2, inArr)
     return str(x) + "," + str(y)
 
-portalMap = {}
+def modName(x, y, name):
+    return name + "," + str(x) + "," + str(y)
+
+def make_graph(inArr):
+    portalMap = {}
+    src = ""
+    dest = ""
+    G = nx.Graph()
+
+    # nodes
+    for y in range(len(inArr)):
+        for x in range(len(inArr[y])):
+            if check(x, y, inArr):
+                n = getName(x, y, inArr)
+                if isalpha(n[0]):
+                    n2 = n
+                    n = modName(x, y, n)
+                    if n2 in portalMap:
+                        portalMap[n2].append(n)
+                    else:
+                        portalMap[n2] = [n]
+                    if n2 == "A,A":
+                        src = n
+                    elif n2 == "Z,Z":
+                        dest = n
+                G.add_node(n)
+    
+    # edges
+    for y in range(len(inArr)):
+        for x in range(len(inArr[y])):
+            if check(x, y, inArr):
+                n = getName(x, y, inArr)
+                if isalpha(n[0]):
+                    n2 = n
+                    n = modName(x, y, n)
+                    for name in portalMap[n2]:
+                        G.add_edge(n, name)
+                x2 = x + 1
+                y2 = y + 1
+                if check(x2, y, inArr):
+                    n2 = getName(x2, y, inArr)
+                    if isalpha(n2[0]):
+                        n2 = modName(x2, y, n2)
+                    G.add_edge(n, n2)
+                if check(x, y2, inArr):
+                    n2 = getName(x, y2, inArr)
+                    if isalpha(n2[0]):
+                        n2 = modName(x, y2, n2)
+                    G.add_edge(n, n2)
+
+    return G, src, dest
 
 inArr = []
 for line in fileinput.input():
     inArr.append(list(line[0:len(line)-1]))
 
-for line in inArr:
-    print(line)
+G, src, dest = make_graph(inArr)
 
-portals = {}
-
-G = nx.Graph()
-for y in range(len(inArr)):
-    for x in range(len(inArr[y])):
-        if check(x, y, inArr):
-            n = getName(x, y, inArr)
-            if n not in G:
-                G.add_node(getName(x, y, inArr))
-
-for y in range(len(inArr)):
-    for x in range(len(inArr[y])):
-        if check(x, y, inArr):
-            n = getName(x, y, inArr)
-            x2 = x + 1
-            y2 = y + 1
-            if check(x2, y, inArr):
-                n2 = getName(x2, y, inArr)
-                G.add_edge(n, n2)
-            if check(x, y2, inArr):
-                n2 = getName(x, y2, inArr)
-                G.add_edge(n, n2)
-
-print(len(nx.shortest_path(G, "A,A", "Z,Z")))
-print(nx.algorithms.shortest_paths.unweighted.bidirectional_shortest_path(G, "A,A", "Z,Z"))
+print("Part one:", len(nx.shortest_path(G, src, dest)[1:]))
