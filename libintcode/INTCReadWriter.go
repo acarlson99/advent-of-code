@@ -59,6 +59,9 @@ func (r INTCStdout) WriteInt(n int) {
 	fmt.Println(n)
 }
 
+func (r INTCStdout) Close() {
+}
+
 type INTCStdoutSep struct {
 	Sep string
 	End string
