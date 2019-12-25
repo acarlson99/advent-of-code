@@ -124,3 +124,34 @@ func (a INTCArrWriter) WriteInt(n int) {
 
 func (a INTCArrWriter) Close() {
 }
+
+type INTCASCIIStdout struct {
+	Buf []byte
+}
+
+func (a *INTCASCIIStdout) WriteInt(n int) {
+	if n == 10 {
+		fmt.Println(string(a.Buf))
+		a.Buf = []byte{}
+	} else {
+		a.Buf = append(a.Buf, byte(n))
+	}
+}
+
+func (a *INTCASCIIStdout) Close() {}
+
+type INTCASCIIStdin struct {
+	Buf []byte
+}
+
+func (a *INTCASCIIStdin) ReadInt() (int, bool) {
+	if len(a.Buf) == 0 {
+		fmt.Printf("> ")
+		reader := bufio.NewReader(os.Stdin)
+		text, _ := reader.ReadString('\n')
+		a.Buf = []byte(text)
+	}
+	c := a.Buf[0]
+	a.Buf = a.Buf[1:]
+	return int(c), true
+}

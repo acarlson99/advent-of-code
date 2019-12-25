@@ -53,6 +53,7 @@ func Exec_prog(arr []int, input INTCReader, output INTCWriter) {
 			} else {
 				fmt.Println("Input closed")
 				arr[args[0]] = 0
+				return
 			}
 		case 4:
 			output.WriteInt(arr[args[0]])
