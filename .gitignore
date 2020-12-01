@@ -28,3 +28,5 @@
 *.bak
 2019/intcode/intcode
 *:Zone.Identifier
+main
+*.hi
