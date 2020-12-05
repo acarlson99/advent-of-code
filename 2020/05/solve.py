@@ -1,14 +1,7 @@
 import fileinput
 
-
-def toRow(s):
-	return eval('0b' + s.replace('F', '0').replace('B', '1'))
-
-def toCol(s):
-	return eval('0b' + s.replace('R', '1').replace('L', '0'))
-
 def seatID(s):
-	return toRow(s[:-3]) * 8 + toCol(s[7:])
+	return eval('0b' + s.replace('F', '0').replace('B', '1').replace('R', '1').replace('L', '0'))
 
 ids = []
 
