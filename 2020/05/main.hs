@@ -15,7 +15,7 @@ partOne = maximum' . seatIDs
 
 partTwo = f . sort . seatIDs
   where
-    f (x : xs) = fst . head . dropWhile (uncurry (==)) . getZipList . (((,) <$> ZipList [x ..]) <*>) $ ZipList (x : xs)
+    f (x : xs) = fst $ head $ dropWhile (uncurry (==)) $ zip [x ..] (x : xs)
 
 main = do
   inp <- lines <$> readFile "input.txt"
