@@ -1,19 +1,15 @@
--- cabal run
-
-module Main where
-
+import AOC
 import Data.Char
 import Data.List
-import Data.List.Split
 
 partOne = sum . map (fromEnum . (== 7) . length . filter (not . isPrefixOf "cid"))
 
 chkHeight [a, b, c, 'c', 'm'] = v' >= 150 && v' <= 193
   where
-    v' = read ([a, b, c])
+    v' = read [a, b, c]
 chkHeight [a, b, 'i', 'n'] = v' >= 56 && v' <= 76
   where
-    v' = read ([a, b])
+    v' = read [a, b]
 chkHeight _ = False
 
 validate :: (String, String) -> Bool
@@ -29,7 +25,7 @@ validate ("eyr", v) = v' >= 2020 && v' <= 2030
 validate ("hgt", v) = chkHeight v
 validate ("hcl", '#' : xs) = foldr (\a acc -> acc && (isDigit a || (a >= 'a' && a <= 'f'))) (length xs == 6) xs
 validate ("ecl", v) = v `elem` ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]
-validate ("pid", v) = (foldr1 (&&) $ map isDigit v) && length v == 9
+validate ("pid", v) = all isDigit v && length v == 9
 validate _ = False
 
 transform = (\(x : xs) -> (x, mconcat xs)) . splitWhen (== ':')

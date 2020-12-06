@@ -31,3 +31,4 @@
 main
 *.hi
 dist-newstyle/
+./input.txt
