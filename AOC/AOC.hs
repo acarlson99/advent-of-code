@@ -13,3 +13,12 @@ groupElements = map (\xs@(x : _) -> (x, length xs)) . group . sort
 
 uniq :: Ord a => [a] -> Int
 uniq = length . groupElements
+
+twoSum :: Int -> [Int] -> [(Int, Int)]
+twoSum n ns =
+  let ixs = zip [0 ..] ns
+   in [ (i, j)
+        | (i, x) <- ixs,
+          (j, y) <- drop (i + 1) ixs,
+          (x + y) == n
+      ]
