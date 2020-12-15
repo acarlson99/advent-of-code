@@ -5,8 +5,8 @@
 OUTPATH=$(printf "%s/%d/%02d/input.txt" $(dirname $0) $1 $2)
 
 linkFile() {
-	echo "linking ./input.txt"
-	ln -f -s $OUTPATH ./input.txt
+	echo "linking $(dirname $0)/input.txt"
+	ln -f -s $OUTPATH $(dirname $0)/input.txt
 }
 
 if [ -f $OUTPATH ]

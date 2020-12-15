@@ -8,6 +8,13 @@ splitWhen c l = x : splitWhen c (drop (length x + 1) l)
   where
     x = takeWhile (not . c) l
 
+-- like splitWhen, but keeps object split.  splitOn (<2) [1,3,1,4,1,5] = [[1,3],[1,4],[1,5]]
+splitOn :: (a -> Bool) -> [a] -> [[a]]
+splitOn _ [] = []
+splitOn c xs = x : splitOn c (drop (length x) xs)
+  where
+    x = head xs : takeWhile (not . c) (drop 1 xs)
+
 groupElements :: Ord a => [a] -> [(a, Int)]
 groupElements = map (\xs@(x : _) -> (x, length xs)) . group . sort
 
