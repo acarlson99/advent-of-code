@@ -29,3 +29,9 @@ twoSum n ns =
           (j, y) <- drop (i + 1) ixs,
           (x + y) == n
       ]
+
+readDelim :: (Read a) => [Char] -> String -> [a]
+readDelim delims = map read . splitWhen (`elem` delims)
+
+readIntCSV :: String -> [Int]
+readIntCSV = readDelim ","
