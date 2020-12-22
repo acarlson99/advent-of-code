@@ -55,4 +55,4 @@
      (fill-arr-2 name
                  (string->number x) (string->number y) (string->number xl) (string->number yl))]))
 
-(displayln (foldr (lambda (a b) (if (cdr a) (car a) b)) 0 (hash->list hs)))
+(displayln (substring (foldr (lambda (a b) (if (cdr a) (car a) b)) 0 (hash->list hs)) 1))
