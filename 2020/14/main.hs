@@ -1,16 +1,8 @@
+import AOC
 import qualified Data.Bifunctor as Bifunctor
 import Data.Bits
 import Data.Char
-import Data.List
-import qualified Data.Map as Map
-
-splitOn _ [] = []
-splitOn c xs = x : splitOn c (drop (length x) xs)
-  where
-    x = head xs : takeWhile (not . c) (drop 1 xs)
-
-groupElements :: Ord a => [a] -> [(a, Int)]
-groupElements = map (\xs@(x : _) -> (x, length xs)) . group . sort
+import qualified Data.Map as M
 
 onlyDigits = takeWhile isDigit . dropWhile (not . isDigit)
 
@@ -24,7 +16,7 @@ maskBlock (x, xs) = map (Bifunctor.second f) xs
   where
     f = constructMask x
 
-uniqueMemAddrs = Map.toList . foldl (flip $ uncurry Map.insert) Map.empty
+uniqueMemAddrs = M.toList . foldl (flip $ uncurry M.insert) M.empty
 
 partOne :: [([Char], [(Int, Int)])] -> Int
 partOne = sum . map snd . uniqueMemAddrs . concatMap maskBlock
