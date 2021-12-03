@@ -1,5 +1,6 @@
 module AOC where
 
+import Data.Char
 import Data.List
 
 splitWhen :: (a -> Bool) -> [a] -> [[a]]
@@ -35,3 +36,19 @@ readDelim delims = map read . splitWhen (`elem` delims)
 
 readIntCSV :: String -> [Int]
 readIntCSV = readDelim ","
+
+ctoi :: Char -> Int
+ctoi = subtract (ord '0') . ord
+
+itoc :: Int -> Char
+itoc = chr . (+) (ord '0')
+
+cToB '0' = False
+cToB '1' = True
+
+-- [1,0,1,0] -> 10
+binListToDec :: [Int] -> Int
+binListToDec = foldr (\x y -> fromEnum x + 2 * y) 0 . reverse
+
+boolListToDec :: [Bool] -> Int
+boolListToDec = foldr (\x y -> fromEnum x + 2 * y) 0 . reverse . map fromEnum
