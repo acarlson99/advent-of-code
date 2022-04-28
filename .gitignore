@@ -32,3 +32,6 @@ main
 *.hi
 dist-newstyle/
 /input.txt
+*~
+*.zo
+*.dep
