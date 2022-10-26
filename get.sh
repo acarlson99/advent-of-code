@@ -40,9 +40,10 @@ curl -s $LOC -b "session=$3" -o /tmp/input.txt
 if [ $? != 0 ]
 then
 	echo "CURL ERROR"
-elif [[ $INPUT =~ "404 Not Found" ]]
+elif [[ `cat /tmp/input.txt` =~ "404 Not Found" || `cat /tmp/input.txt` =~ "Puzzle inputs differ by user.  Please log in to get your puzzle input." ]]
 then
 	echo "ERROR: $LOC"
+	cat /tmp/input.txt
 else
 	echo $OUTPATH
 	mkdir -p $(dirname $OUTPATH)
