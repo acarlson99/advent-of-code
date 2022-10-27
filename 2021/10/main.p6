@@ -28,18 +28,13 @@ sub MAIN($file) {
 				}
 				else {
 					my $c = @stack.pop;
-					if !(%matchList{$c} === $_) {
-						# say "Expected %matchList{$c} got $_";
-						# say $line;
-						given $_ { 
-							when ')' { return (3,0); }
-							when ']' { return (57,0); }
-							when '}' { return (1197,0); }
-							when '>' { return (25137,0); }
-							default { return (-1,0); }
-						};
-						# return;
-					}
+					return {
+						')' => (3,0),
+						']' => (57,0),
+						'}' => (1197,0),
+						'>' => (25137,0),
+					}{$_} unless (%matchList{$c} === $_);
+
 				}
 			}
 			# calculate for incomplete
