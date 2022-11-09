@@ -26,7 +26,11 @@ sub f($opName, $v0, $v1) {
 }
 
 sub MAIN($file) {
+	say '# https://dreampuf.github.io/GraphvizOnline';
 	say 'strict digraph {';
+	for 'w'..'z' -> $z {
+		say $z,'_0',' [label=',$z,']';
+	}
 	for $file.IO.lines -> $line {
 		given $line {
 			when rx:s/inp (.)/ {
