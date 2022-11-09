@@ -5,10 +5,11 @@
 OUTPATH=$(printf "%s/%d/%02d/input.txt" $(dirname $0) $1 $2)
 
 linkFile() {
-	echo "linking $(dirname $0)/input.txt"
-	ln -f -s $OUTPATH $(dirname $0)/input.txt
-	echo "Copying into /tmp/input.txt"
-	cp $OUTPATH /tmp/input.txt
+	fname=$(dirname $0)/input.txt
+	echo "linking $fname"
+	ln -f -s `readlink $OUTPATH` $fname
+	echo "linking /tmp/input.txt"
+	ln -f -s `readlink $OUTPATH` /tmp/input.txt
 }
 
 if [ -f $OUTPATH ]
@@ -35,18 +36,28 @@ fi
 
 LOC="https://adventofcode.com/$1/day/$(printf '%d' $2)/input"
 
-curl -s $LOC -b "session=$3" -o /tmp/input.txt
+TMPFILE=`mktemp`
+curl -s $LOC -b "session=$3" -o $TMPFILE
 
 if [ $? != 0 ]
 then
 	echo "CURL ERROR"
-elif [[ `cat /tmp/input.txt` =~ "404 Not Found" || `cat /tmp/input.txt` =~ "Puzzle inputs differ by user.  Please log in to get your puzzle input." ]]
+elif [[ `cat $TMPFILE` =~ "404 Not Found" ]]
 then
-	echo "ERROR: $LOC"
-	cat /tmp/input.txt
+	echo "NOT FOUND: $LOC"
+	cat $TMPFILE
+elif [[ `cat $TMPFILE` =~ "Please don't repeatedly request this endpoint before it unlocks" ]]
+then
+	echo "Not yet available: $LOC"
+	cat $TMPFILE
+elif [[ `cat $TMPFILE` =~ "Puzzle inputs differ by user.  Please log in to get your puzzle input." ]]
+then
+	echo "Missing session cookie"
+	cat $TMPFILE
 else
 	echo $OUTPATH
 	mkdir -p $(dirname $OUTPATH)
-	cp /tmp/input.txt $OUTPATH
+	cp $TMPFILE $OUTPATH
 	linkFile
 fi
+rm $TMPFILE
