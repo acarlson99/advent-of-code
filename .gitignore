@@ -35,3 +35,4 @@ dist-newstyle/
 *~
 *.zo
 *.dep
+__pycache__
