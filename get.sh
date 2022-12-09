@@ -60,3 +60,4 @@ else
 	cp $TMPFILE $OUTPATH
 	linkFile
 fi
+rm $TMPFILE
