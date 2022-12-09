@@ -2,13 +2,9 @@
 
 from sys import argv
 
-print(argv)
-
 f = open(argv[1], 'r')
 contents = f.read().strip()
 f.close()
-
-print(contents)
 
 inp = list(map(lambda x: (x[0], int(x.split(' ')[1])), contents.split('\n')))
 
@@ -31,7 +27,7 @@ def p1(inp):
     tail = (0,0)
     for l in inp:
         d,n = l
-        for i in range(n):
+        for _ in range(n):
             last = head
             head = tadd(head,mvtab[d])
             diff = tsub(head,tail)
@@ -49,26 +45,26 @@ def clamp(a,t,b):
         return b
     return t
 
-# idk why this doesnt work idgaf to fix it
+def sign(n):
+    if n<0:
+        return -1
+    if n>0:
+        return 1
+    return 0
+
 def p2(inp):
     ss=set()
-    head = (0,0)
-    tail = (0,0)
+    knots = [(0,0) for _ in range(10)]
     for l in inp:
         d,n = l
-        for i in range(n):
-            last = head
-            head = tadd(head,mvtab[d])
-            diff = tsub(head,tail)
-            if abs(diff[0]) + abs(diff[1]) > 9:
-                # if not in same row/col move in that direction
-                oldTail = tail
-                tail = tadd(tail,(clamp(-1,diff[0],1), clamp(-1,diff[1],1)))
-                print(f"MV {d}{n} {head} {oldTail} {tail}")
-            ss.add(tail)
-    print(ss)
+        for _ in range(n):
+            knots[0] = tadd(knots[0], mvtab[d])
+            for i in range(len(knots)-1):
+                head,tail = knots[i],knots[i+1]
+                diff = tsub(head,tail)
+                if 2 <= abs(diff[0]) or 2 <= abs(diff[1]):
+                    knots[i+1] = tadd(tail, (sign(diff[0]), sign(diff[1])))
+            ss.add(knots[-1])
     return len(ss)
 
 print(p2(inp))
-
-# < 2609
