@@ -36,3 +36,4 @@ dist-newstyle/
 *.zo
 *.dep
 __pycache__
+*.swp
