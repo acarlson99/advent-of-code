@@ -6,10 +6,10 @@ OUTPATH=$(printf "%s/%d/%02d/input.txt" $(dirname $0) $1 $2)
 
 linkFile() {
 	fname=$(dirname $0)/input.txt
-	echo "linking $fname"
-	ln -f -s `readlink $OUTPATH` $fname
+	echo "linking $OUTPATH to $fname"
+	ln -f -s `readlink -f $OUTPATH` $fname
 	echo "linking /tmp/input.txt"
-	ln -f -s `readlink $OUTPATH` /tmp/input.txt
+	ln -f -s `readlink -f $OUTPATH` /tmp/input.txt
 }
 
 if [ -f $OUTPATH ]
