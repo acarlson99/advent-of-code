@@ -2,6 +2,15 @@
 
 # ./get.sh 2020 01 "0123456789OAuthCookie9876543210"
 
+if [ $# -ne 3 ]
+then
+	echo "Usage: get.sh year day oauth-cookie"
+	echo "     ./get.sh 2020 01 '123cookie456'"
+	echo "Cookie obtain:"
+	echo "    Visit adventofcode.com, log in, find 'session cookie'"
+	exit
+fi
+
 OUTPATH=$(printf "%s/%d/%02d/input.txt" $(dirname $0) $1 $2)
 
 linkFile() {
