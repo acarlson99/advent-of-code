@@ -15,3 +15,9 @@ def doDFS(g,start,expandF,isEndF):
                     return dist
                 q.append((newPos,dist+1))
     return -1
+
+def readFile(name):
+    f = open(name, 'r')
+    contents = f.read().strip()
+    f.close()
+    return contents
